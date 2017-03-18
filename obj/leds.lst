@@ -1,0 +1,152 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 2
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"leds.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.leds_init,"ax",%progbits
+  20              		.align	2
+  21              		.global	leds_init
+  22              		.thumb
+  23              		.thumb_func
+  25              	leds_init:
+  26              	.LFB110:
+  27              		.file 1 "drivers/leds.c"
+   1:drivers/leds.c **** #include "common.h"
+   2:drivers/leds.c **** #include <math.h>
+   3:drivers/leds.c **** #include <stdio.h>
+   4:drivers/leds.c **** #include <stdlib.h>
+   5:drivers/leds.c **** 
+   6:drivers/leds.c **** 
+   7:drivers/leds.c **** 
+   8:drivers/leds.c **** void leds_init(){
+  28              		.loc 1 8 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 8
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 30B5     		push	{r4, r5, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 12
+  35              		.cfi_offset 4, -12
+  36              		.cfi_offset 5, -8
+  37              		.cfi_offset 14, -4
+   9:drivers/leds.c **** 
+  10:drivers/leds.c **** 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+  38              		.loc 1 10 0
+  39 0002 4020     		movs	r0, #64
+   8:drivers/leds.c **** 
+  40              		.loc 1 8 0
+  41 0004 83B0     		sub	sp, sp, #12
+  42              	.LCFI1:
+  43              		.cfi_def_cfa_offset 24
+  44              		.loc 1 10 0
+  45 0006 0121     		movs	r1, #1
+  46 0008 FFF7FEFF 		bl	RCC_AHB1PeriphClockCmd
+  47              	.LVL0:
+  11:drivers/leds.c **** 	GPIO_InitTypeDef GPIO_InitDef;
+  12:drivers/leds.c **** 	GPIO_InitDef.GPIO_Mode=GPIO_Mode_OUT;
+  13:drivers/leds.c **** 	GPIO_InitDef.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14;
+  14:drivers/leds.c **** 	GPIO_InitDef.GPIO_OType= GPIO_OType_PP;
+  15:drivers/leds.c **** 	GPIO_InitDef.GPIO_PuPd= GPIO_PuPd_NOPULL;
+  16:drivers/leds.c **** 	GPIO_InitDef.GPIO_Speed= GPIO_Speed_50MHz;
+  17:drivers/leds.c **** 	
+  18:drivers/leds.c **** 	
+  19:drivers/leds.c **** 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
+  48              		.loc 1 19 0
+  49 000c 0E4A     		ldr	r2, .L3
+  20:drivers/leds.c **** 	GPIO_DeInit(GPIOG);
+  50              		.loc 1 20 0
+  51 000e 0F4C     		ldr	r4, .L3+4
+  13:drivers/leds.c **** 	GPIO_InitDef.GPIO_OType= GPIO_OType_PP;
+  52              		.loc 1 13 0
+  53 0010 4FF4C043 		mov	r3, #24576
+  54 0014 0093     		str	r3, [sp]
+  19:drivers/leds.c **** 	GPIO_DeInit(GPIOG);
+  55              		.loc 1 19 0
+  56 0016 136B     		ldr	r3, [r2, #48]
+  14:drivers/leds.c **** 	GPIO_InitDef.GPIO_PuPd= GPIO_PuPd_NOPULL;
+  57              		.loc 1 14 0
+  58 0018 0021     		movs	r1, #0
+  19:drivers/leds.c **** 	GPIO_DeInit(GPIOG);
+  59              		.loc 1 19 0
+  60 001a 43F04003 		orr	r3, r3, #64
+  12:drivers/leds.c **** 	GPIO_InitDef.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14;
+  61              		.loc 1 12 0
+  62 001e 0125     		movs	r5, #1
+  16:drivers/leds.c **** 	
+  63              		.loc 1 16 0
+  64 0020 0220     		movs	r0, #2
+  14:drivers/leds.c **** 	GPIO_InitDef.GPIO_PuPd= GPIO_PuPd_NOPULL;
+  65              		.loc 1 14 0
+  66 0022 8DF80610 		strb	r1, [sp, #6]
+  15:drivers/leds.c **** 	GPIO_InitDef.GPIO_Speed= GPIO_Speed_50MHz;
+  67              		.loc 1 15 0
+  68 0026 8DF80710 		strb	r1, [sp, #7]
+  16:drivers/leds.c **** 	
+  69              		.loc 1 16 0
+  70 002a 8DF80500 		strb	r0, [sp, #5]
+  12:drivers/leds.c **** 	GPIO_InitDef.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14;
+  71              		.loc 1 12 0
+  72 002e 8DF80450 		strb	r5, [sp, #4]
+  73              		.loc 1 20 0
+  74 0032 2046     		mov	r0, r4
+  19:drivers/leds.c **** 	GPIO_DeInit(GPIOG);
+  75              		.loc 1 19 0
+  76 0034 1363     		str	r3, [r2, #48]
+  77              		.loc 1 20 0
+  78 0036 FFF7FEFF 		bl	GPIO_DeInit
+  79              	.LVL1:
+  21:drivers/leds.c **** 	GPIO_Init(GPIOG, &GPIO_InitDef);
+  80              		.loc 1 21 0
+  81 003a 2046     		mov	r0, r4
+  82 003c 6946     		mov	r1, sp
+  83 003e FFF7FEFF 		bl	GPIO_Init
+  84              	.LVL2:
+  22:drivers/leds.c **** 
+  23:drivers/leds.c **** 
+  24:drivers/leds.c ****   
+  25:drivers/leds.c **** }
+  85              		.loc 1 25 0
+  86 0042 03B0     		add	sp, sp, #12
+  87              	.LCFI2:
+  88              		.cfi_def_cfa_offset 12
+  89              		@ sp needed
+  90 0044 30BD     		pop	{r4, r5, pc}
+  91              	.L4:
+  92 0046 00BF     		.align	2
+  93              	.L3:
+  94 0048 00380240 		.word	1073887232
+  95 004c 00180240 		.word	1073879040
+  96              		.cfi_endproc
+  97              	.LFE110:
+  99              		.text
+ 100              	.Letext0:
+ 101              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\4.9 2014q4\\arm-none-eabi\\include\\mach
+ 102              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\4.9 2014q4\\arm-none-eabi\\include\\stdi
+ 103              		.file 4 "libs/Device/STM32F4xx/Include/stm32f4xx.h"
+ 104              		.file 5 "libs/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h"
+ 105              		.file 6 "libs/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h"
+ 106              		.file 7 "libs/CMSIS/Include/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 leds.c
+C:\Users\Student\AppData\Local\Temp\cc8FiPtb.s:20     .text.leds_init:00000000 $t
+C:\Users\Student\AppData\Local\Temp\cc8FiPtb.s:25     .text.leds_init:00000000 leds_init
+C:\Users\Student\AppData\Local\Temp\cc8FiPtb.s:94     .text.leds_init:00000048 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+RCC_AHB1PeriphClockCmd
+GPIO_DeInit
+GPIO_Init

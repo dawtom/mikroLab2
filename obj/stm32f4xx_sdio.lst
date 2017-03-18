@@ -1,0 +1,2004 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 2
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"stm32f4xx_sdio.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.SDIO_DeInit,"ax",%progbits
+  20              		.align	2
+  21              		.global	SDIO_DeInit
+  22              		.thumb
+  23              		.thumb_func
+  25              	SDIO_DeInit:
+  26              	.LFB110:
+  27              		.file 1 "libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c"
+   1:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+   2:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   ******************************************************************************
+   3:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @file    stm32f4xx_sdio.c
+   4:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @author  MCD Application Team
+   5:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @version V1.3.0
+   6:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @date    08-November-2013
+   7:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief   This file provides firmware functions to manage the following 
+   8:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          functionalities of the Secure digital input/output interface (SDIO) 
+   9:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          peripheral:
+  10:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *           + Initialization and Configuration
+  11:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *           + Command path state machine (CPSM) management
+  12:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *           + Data path state machine (DPSM) management
+  13:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *           + SDIO IO Cards mode management
+  14:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *           + CE-ATA mode management
+  15:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *           + DMA transfers management
+  16:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *           + Interrupts and flags management
+  17:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *
+  18:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @verbatim
+  19:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+  20:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===================================================================
+  21:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****                  ##### How to use this driver #####
+  22:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===================================================================
+  23:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  [..]
+  24:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) The SDIO clock (SDIOCLK = 48 MHz) is coming from a specific output of PLL 
+  25:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (PLL48CLK). Before to start working with SDIO peripheral make sure that the
+  26:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        PLL is well configured.
+  27:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        The SDIO peripheral uses two clock signals:
+  28:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) SDIO adapter clock (SDIOCLK = 48 MHz)
+  29:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) APB2 bus clock (PCLK2)
+  30:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        
+  31:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        -@@- PCLK2 and SDIO_CK clock frequencies must respect the following condition:
+  32:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            Frequency(PCLK2) >= (3 / 8 x Frequency(SDIO_CK))
+  33:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  34:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Enable peripheral clock using RCC_APB2PeriphClockCmd(RCC_APB2Periph_SDIO, ENABLE).
+  35:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  36:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) According to the SDIO mode, enable the GPIO clocks using 
+  37:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        RCC_AHB1PeriphClockCmd() function. 
+  38:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        The I/O can be one of the following configurations:
+  39:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) 1-bit data length: SDIO_CMD, SDIO_CK and D0.
+  40:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) 4-bit data length: SDIO_CMD, SDIO_CK and D[3:0].
+  41:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) 8-bit data length: SDIO_CMD, SDIO_CK and D[7:0].      
+  42:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  43:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Peripheral alternate function: 
+  44:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Connect the pin to the desired peripherals' Alternate Function (AF) 
+  45:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            using GPIO_PinAFConfig() function
+  46:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Configure the desired pin in alternate function by: 
+  47:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            GPIO_InitStruct->GPIO_Mode = GPIO_Mode_AF
+  48:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Select the type, pull-up/pull-down and output speed via GPIO_PuPd, 
+  49:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            GPIO_OType and GPIO_Speed members
+  50:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Call GPIO_Init() function
+  51:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  52:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Program the Clock Edge, Clock Bypass, Clock Power Save, Bus Wide, 
+  53:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        hardware, flow control and the Clock Divider using the SDIO_Init()
+  54:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        function.
+  55:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  56:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Enable the Power ON State using the SDIO_SetPowerState(SDIO_PowerState_ON) 
+  57:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        function.
+  58:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****                 
+  59:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Enable the clock using the SDIO_ClockCmd() function.
+  60:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  61:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Enable the NVIC and the corresponding interrupt using the function 
+  62:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        SDIO_ITConfig() if you need to use interrupt mode. 
+  63:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  64:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) When using the DMA mode 
+  65:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Configure the DMA using DMA_Init() function
+  66:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Active the needed channel Request using SDIO_DMACmd() function
+  67:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  68:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Enable the DMA using the DMA_Cmd() function, when using DMA mode. 
+  69:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  70:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) To control the CPSM (Command Path State Machine) and send 
+  71:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        commands to the card use the SDIO_SendCommand(), 
+  72:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        SDIO_GetCommandResponse() and SDIO_GetResponse() functions. First, user has
+  73:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        to fill the command structure (pointer to SDIO_CmdInitTypeDef) according 
+  74:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        to the selected command to be sent.
+  75:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        The parameters that should be filled are:
+  76:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Command Argument
+  77:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Command Index
+  78:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Command Response type
+  79:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Command Wait
+  80:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) CPSM Status (Enable or Disable).
+  81:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  82:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        -@@- To check if the command is well received, read the SDIO_CMDRESP
+  83:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            register using the SDIO_GetCommandResponse().
+  84:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            The SDIO responses registers (SDIO_RESP1 to SDIO_RESP2), use the
+  85:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            SDIO_GetResponse() function.
+  86:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  87:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) To control the DPSM (Data Path State Machine) and send/receive 
+  88:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        data to/from the card use the SDIO_DataConfig(), SDIO_GetDataCounter(), 
+  89:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        SDIO_ReadData(), SDIO_WriteData() and SDIO_GetFIFOCount() functions.
+  90:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  91:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *** Read Operations ***
+  92:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  =======================
+  93:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  [..]
+  94:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) First, user has to fill the data structure (pointer to
+  95:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        SDIO_DataInitTypeDef) according to the selected data type to be received.
+  96:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        The parameters that should be filled are:
+  97:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Data TimeOut
+  98:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Data Length
+  99:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Data Block size
+ 100:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Data Transfer direction: should be from card (To SDIO)
+ 101:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Data Transfer mode
+ 102:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) DPSM Status (Enable or Disable)
+ 103:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****                                      
+ 104:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Configure the SDIO resources to receive the data from the card
+ 105:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        according to selected transfer mode (Refer to Step 8, 9 and 10).
+ 106:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 107:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#)  Send the selected Read command (refer to step 11).
+ 108:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****                     
+ 109:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Use the SDIO flags/interrupts to check the transfer status.
+ 110:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 111:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *** Write Operations ***
+ 112:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ========================
+ 113:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  [..]
+ 114:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) First, user has to fill the data structure (pointer to
+ 115:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        SDIO_DataInitTypeDef) according to the selected data type to be received.
+ 116:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        The parameters that should be filled are:
+ 117:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Data TimeOut
+ 118:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Data Length
+ 119:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Data Block size
+ 120:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Data Transfer direction:  should be to card (To CARD)
+ 121:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) Data Transfer mode
+ 122:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        (++) DPSM Status (Enable or Disable)
+ 123:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 124:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Configure the SDIO resources to send the data to the card according to 
+ 125:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****        selected transfer mode (Refer to Step 8, 9 and 10).
+ 126:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****                      
+ 127:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Send the selected Write command (refer to step 11).
+ 128:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****                     
+ 129:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    (#) Use the SDIO flags/interrupts to check the transfer status.
+ 130:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 131:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 132:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @endverbatim
+ 133:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *
+ 134:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *
+ 135:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   ******************************************************************************
+ 136:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @attention
+ 137:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *
+ 138:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+ 139:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *
+ 140:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+ 141:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * You may not use this file except in compliance with the License.
+ 142:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * You may obtain a copy of the License at:
+ 143:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *
+ 144:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *        http://www.st.com/software_license_agreement_liberty_v2
+ 145:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *
+ 146:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * Unless required by applicable law or agreed to in writing, software 
+ 147:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * distributed under the License is distributed on an "AS IS" BASIS, 
+ 148:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ 149:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * See the License for the specific language governing permissions and
+ 150:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * limitations under the License.
+ 151:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *
+ 152:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   ******************************************************************************
+ 153:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 154:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 155:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Includes ------------------------------------------------------------------*/
+ 156:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #include "stm32f4xx_sdio.h"
+ 157:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #include "stm32f4xx_rcc.h"
+ 158:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 159:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /** @addtogroup STM32F4xx_StdPeriph_Driver
+ 160:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @{
+ 161:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 162:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 163:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /** @defgroup SDIO 
+ 164:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief SDIO driver modules
+ 165:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @{
+ 166:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */ 
+ 167:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 168:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Private typedef -----------------------------------------------------------*/
+ 169:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Private define ------------------------------------------------------------*/
+ 170:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 171:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* ------------ SDIO registers bit address in the alias region ----------- */
+ 172:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define SDIO_OFFSET                (SDIO_BASE - PERIPH_BASE)
+ 173:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 174:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* --- CLKCR Register ---*/
+ 175:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Alias word address of CLKEN bit */
+ 176:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define CLKCR_OFFSET              (SDIO_OFFSET + 0x04)
+ 177:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define CLKEN_BitNumber           0x08
+ 178:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define CLKCR_CLKEN_BB            (PERIPH_BB_BASE + (CLKCR_OFFSET * 32) + (CLKEN_BitNumber * 4))
+ 179:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 180:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* --- CMD Register ---*/
+ 181:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Alias word address of SDIOSUSPEND bit */
+ 182:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define CMD_OFFSET                (SDIO_OFFSET + 0x0C)
+ 183:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define SDIOSUSPEND_BitNumber     0x0B
+ 184:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define CMD_SDIOSUSPEND_BB        (PERIPH_BB_BASE + (CMD_OFFSET * 32) + (SDIOSUSPEND_BitNumber * 4)
+ 185:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 186:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Alias word address of ENCMDCOMPL bit */
+ 187:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define ENCMDCOMPL_BitNumber      0x0C
+ 188:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define CMD_ENCMDCOMPL_BB         (PERIPH_BB_BASE + (CMD_OFFSET * 32) + (ENCMDCOMPL_BitNumber * 4))
+ 189:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 190:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Alias word address of NIEN bit */
+ 191:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define NIEN_BitNumber            0x0D
+ 192:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define CMD_NIEN_BB               (PERIPH_BB_BASE + (CMD_OFFSET * 32) + (NIEN_BitNumber * 4))
+ 193:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 194:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Alias word address of ATACMD bit */
+ 195:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define ATACMD_BitNumber          0x0E
+ 196:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define CMD_ATACMD_BB             (PERIPH_BB_BASE + (CMD_OFFSET * 32) + (ATACMD_BitNumber * 4))
+ 197:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 198:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* --- DCTRL Register ---*/
+ 199:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Alias word address of DMAEN bit */
+ 200:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define DCTRL_OFFSET              (SDIO_OFFSET + 0x2C)
+ 201:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define DMAEN_BitNumber           0x03
+ 202:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define DCTRL_DMAEN_BB            (PERIPH_BB_BASE + (DCTRL_OFFSET * 32) + (DMAEN_BitNumber * 4))
+ 203:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 204:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Alias word address of RWSTART bit */
+ 205:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define RWSTART_BitNumber         0x08
+ 206:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define DCTRL_RWSTART_BB          (PERIPH_BB_BASE + (DCTRL_OFFSET * 32) + (RWSTART_BitNumber * 4))
+ 207:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 208:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Alias word address of RWSTOP bit */
+ 209:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define RWSTOP_BitNumber          0x09
+ 210:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define DCTRL_RWSTOP_BB           (PERIPH_BB_BASE + (DCTRL_OFFSET * 32) + (RWSTOP_BitNumber * 4))
+ 211:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 212:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Alias word address of RWMOD bit */
+ 213:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define RWMOD_BitNumber           0x0A
+ 214:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define DCTRL_RWMOD_BB            (PERIPH_BB_BASE + (DCTRL_OFFSET * 32) + (RWMOD_BitNumber * 4))
+ 215:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 216:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Alias word address of SDIOEN bit */
+ 217:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define SDIOEN_BitNumber          0x0B
+ 218:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define DCTRL_SDIOEN_BB           (PERIPH_BB_BASE + (DCTRL_OFFSET * 32) + (SDIOEN_BitNumber * 4))
+ 219:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 220:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* ---------------------- SDIO registers bit mask ------------------------ */
+ 221:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* --- CLKCR Register ---*/
+ 222:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* CLKCR register clear mask */
+ 223:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define CLKCR_CLEAR_MASK         ((uint32_t)0xFFFF8100) 
+ 224:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 225:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* --- PWRCTRL Register ---*/
+ 226:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* SDIO PWRCTRL Mask */
+ 227:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define PWR_PWRCTRL_MASK         ((uint32_t)0xFFFFFFFC)
+ 228:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 229:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* --- DCTRL Register ---*/
+ 230:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* SDIO DCTRL Clear Mask */
+ 231:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define DCTRL_CLEAR_MASK         ((uint32_t)0xFFFFFF08)
+ 232:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 233:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* --- CMD Register ---*/
+ 234:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* CMD Register clear mask */
+ 235:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define CMD_CLEAR_MASK           ((uint32_t)0xFFFFF800)
+ 236:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 237:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* SDIO RESP Registers Address */
+ 238:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** #define SDIO_RESP_ADDR           ((uint32_t)(SDIO_BASE + 0x14))
+ 239:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 240:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Private macro -------------------------------------------------------------*/
+ 241:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Private variables ---------------------------------------------------------*/
+ 242:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Private function prototypes -----------------------------------------------*/
+ 243:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /* Private functions ---------------------------------------------------------*/
+ 244:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 245:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /** @defgroup SDIO_Private_Functions
+ 246:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @{
+ 247:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 248:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 249:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /** @defgroup SDIO_Group1 Initialization and Configuration functions
+ 250:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *  @brief   Initialization and Configuration functions 
+ 251:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *
+ 252:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @verbatim   
+ 253:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================
+ 254:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****               ##### Initialization and Configuration functions #####
+ 255:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================
+ 256:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 257:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @endverbatim
+ 258:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @{
+ 259:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 260:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 261:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 262:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Deinitializes the SDIO peripheral registers to their default reset values.
+ 263:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  None
+ 264:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 265:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 266:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_DeInit(void)
+ 267:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+  28              		.loc 1 267 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 08B5     		push	{r3, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 3, -8
+  36              		.cfi_offset 14, -4
+ 268:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   RCC_APB2PeriphResetCmd(RCC_APB2Periph_SDIO, ENABLE);
+  37              		.loc 1 268 0
+  38 0002 4FF40060 		mov	r0, #2048
+  39 0006 0121     		movs	r1, #1
+  40 0008 FFF7FEFF 		bl	RCC_APB2PeriphResetCmd
+  41              	.LVL0:
+ 269:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   RCC_APB2PeriphResetCmd(RCC_APB2Periph_SDIO, DISABLE);
+  42              		.loc 1 269 0
+  43 000c 4FF40060 		mov	r0, #2048
+  44 0010 0021     		movs	r1, #0
+ 270:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+  45              		.loc 1 270 0
+  46 0012 BDE80840 		pop	{r3, lr}
+  47              	.LCFI1:
+  48              		.cfi_restore 14
+  49              		.cfi_restore 3
+  50              		.cfi_def_cfa_offset 0
+ 269:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   RCC_APB2PeriphResetCmd(RCC_APB2Periph_SDIO, DISABLE);
+  51              		.loc 1 269 0
+  52 0016 FFF7FEBF 		b	RCC_APB2PeriphResetCmd
+  53              	.LVL1:
+  54              		.cfi_endproc
+  55              	.LFE110:
+  57 001a 00BF     		.section	.text.SDIO_Init,"ax",%progbits
+  58              		.align	2
+  59              		.global	SDIO_Init
+  60              		.thumb
+  61              		.thumb_func
+  63              	SDIO_Init:
+  64              	.LFB111:
+ 271:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 272:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 273:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Initializes the SDIO peripheral according to the specified 
+ 274:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         parameters in the SDIO_InitStruct.
+ 275:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_InitStruct : pointer to a SDIO_InitTypeDef structure 
+ 276:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         that contains the configuration information for the SDIO peripheral.
+ 277:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 278:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 279:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_Init(SDIO_InitTypeDef* SDIO_InitStruct)
+ 280:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+  65              		.loc 1 280 0
+  66              		.cfi_startproc
+  67              		@ args = 0, pretend = 0, frame = 0
+  68              		@ frame_needed = 0, uses_anonymous_args = 0
+  69              	.LVL2:
+  70 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  71              	.LCFI2:
+  72              		.cfi_def_cfa_offset 20
+  73              		.cfi_offset 4, -20
+  74              		.cfi_offset 5, -16
+  75              		.cfi_offset 6, -12
+  76              		.cfi_offset 7, -8
+  77              		.cfi_offset 14, -4
+  78 0002 8368     		ldr	r3, [r0, #8]
+ 281:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   uint32_t tmpreg = 0;
+ 282:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****     
+ 283:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 284:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_CLOCK_EDGE(SDIO_InitStruct->SDIO_ClockEdge));
+ 285:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_CLOCK_BYPASS(SDIO_InitStruct->SDIO_ClockBypass));
+ 286:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_CLOCK_POWER_SAVE(SDIO_InitStruct->SDIO_ClockPowerSave));
+ 287:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_BUS_WIDE(SDIO_InitStruct->SDIO_BusWide));
+ 288:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_HARDWARE_FLOW_CONTROL(SDIO_InitStruct->SDIO_HardwareFlowControl)); 
+ 289:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    
+ 290:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /*---------------------------- SDIO CLKCR Configuration ------------------------*/  
+ 291:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Get the SDIO CLKCR value */
+ 292:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   tmpreg = SDIO->CLKCR;
+  79              		.loc 1 292 0
+  80 0004 0A4F     		ldr	r7, .L5
+  81 0006 D0F804E0 		ldr	lr, [r0, #4]
+  82 000a C668     		ldr	r6, [r0, #12]
+  83 000c 0568     		ldr	r5, [r0]
+  84 000e 7A68     		ldr	r2, [r7, #4]
+  85              	.LVL3:
+  86 0010 0469     		ldr	r4, [r0, #16]
+ 293:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 294:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Clear CLKDIV, PWRSAV, BYPASS, WIDBUS, NEGEDGE, HWFC_EN bits */
+ 295:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   tmpreg &= CLKCR_CLEAR_MASK;
+ 296:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 297:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set CLKDIV bits according to SDIO_ClockDiv value */
+ 298:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set PWRSAV bit according to SDIO_ClockPowerSave value */
+ 299:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set BYPASS bit according to SDIO_ClockBypass value */
+ 300:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set WIDBUS bits according to SDIO_BusWide value */
+ 301:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set NEGEDGE bits according to SDIO_ClockEdge value */
+ 302:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set HWFC_EN bits according to SDIO_HardwareFlowControl value */
+ 303:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   tmpreg |= (SDIO_InitStruct->SDIO_ClockDiv  | SDIO_InitStruct->SDIO_ClockPowerSave |
+  87              		.loc 1 303 0
+  88 0012 017D     		ldrb	r1, [r0, #20]	@ zero_extendqisi2
+  89 0014 4EEA0300 		orr	r0, lr, r3
+  90              	.LVL4:
+  91 0018 3043     		orrs	r0, r0, r6
+ 295:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+  92              		.loc 1 295 0
+  93 001a 22F4FD43 		bic	r3, r2, #32384
+  94 001e 2843     		orrs	r0, r0, r5
+  95 0020 40EA0402 		orr	r2, r0, r4
+  96              	.LVL5:
+  97 0024 23F07F03 		bic	r3, r3, #127
+  98 0028 1343     		orrs	r3, r3, r2
+  99              		.loc 1 303 0
+ 100 002a 0B43     		orrs	r3, r3, r1
+ 101              	.LVL6:
+ 304:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****              SDIO_InitStruct->SDIO_ClockBypass | SDIO_InitStruct->SDIO_BusWide |
+ 305:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****              SDIO_InitStruct->SDIO_ClockEdge | SDIO_InitStruct->SDIO_HardwareFlowControl); 
+ 306:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 307:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Write to SDIO CLKCR */
+ 308:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO->CLKCR = tmpreg;
+ 102              		.loc 1 308 0
+ 103 002c 7B60     		str	r3, [r7, #4]
+ 104 002e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 105              	.L6:
+ 106              		.align	2
+ 107              	.L5:
+ 108 0030 002C0140 		.word	1073818624
+ 109              		.cfi_endproc
+ 110              	.LFE111:
+ 112              		.section	.text.SDIO_StructInit,"ax",%progbits
+ 113              		.align	2
+ 114              		.global	SDIO_StructInit
+ 115              		.thumb
+ 116              		.thumb_func
+ 118              	SDIO_StructInit:
+ 119              	.LFB112:
+ 309:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 310:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 311:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 312:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Fills each SDIO_InitStruct member with its default value.
+ 313:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_InitStruct: pointer to an SDIO_InitTypeDef structure which 
+ 314:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         will be initialized.
+ 315:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 316:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 317:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_StructInit(SDIO_InitTypeDef* SDIO_InitStruct)
+ 318:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 120              		.loc 1 318 0
+ 121              		.cfi_startproc
+ 122              		@ args = 0, pretend = 0, frame = 0
+ 123              		@ frame_needed = 0, uses_anonymous_args = 0
+ 124              		@ link register save eliminated.
+ 125              	.LVL7:
+ 319:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* SDIO_InitStruct members default value */
+ 320:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_InitStruct->SDIO_ClockDiv = 0x00;
+ 126              		.loc 1 320 0
+ 127 0000 0023     		movs	r3, #0
+ 128 0002 0375     		strb	r3, [r0, #20]
+ 321:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_InitStruct->SDIO_ClockEdge = SDIO_ClockEdge_Rising;
+ 129              		.loc 1 321 0
+ 130 0004 0360     		str	r3, [r0]
+ 322:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_InitStruct->SDIO_ClockBypass = SDIO_ClockBypass_Disable;
+ 131              		.loc 1 322 0
+ 132 0006 4360     		str	r3, [r0, #4]
+ 323:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_InitStruct->SDIO_ClockPowerSave = SDIO_ClockPowerSave_Disable;
+ 133              		.loc 1 323 0
+ 134 0008 8360     		str	r3, [r0, #8]
+ 324:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_InitStruct->SDIO_BusWide = SDIO_BusWide_1b;
+ 135              		.loc 1 324 0
+ 136 000a C360     		str	r3, [r0, #12]
+ 325:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_InitStruct->SDIO_HardwareFlowControl = SDIO_HardwareFlowControl_Disable;
+ 137              		.loc 1 325 0
+ 138 000c 0361     		str	r3, [r0, #16]
+ 139 000e 7047     		bx	lr
+ 140              		.cfi_endproc
+ 141              	.LFE112:
+ 143              		.section	.text.SDIO_ClockCmd,"ax",%progbits
+ 144              		.align	2
+ 145              		.global	SDIO_ClockCmd
+ 146              		.thumb
+ 147              		.thumb_func
+ 149              	SDIO_ClockCmd:
+ 150              	.LFB113:
+ 326:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 327:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 328:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 329:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Enables or disables the SDIO Clock.
+ 330:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  NewState: new state of the SDIO Clock. 
+ 331:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         This parameter can be: ENABLE or DISABLE.
+ 332:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 333:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 334:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_ClockCmd(FunctionalState NewState)
+ 335:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 151              		.loc 1 335 0
+ 152              		.cfi_startproc
+ 153              		@ args = 0, pretend = 0, frame = 0
+ 154              		@ frame_needed = 0, uses_anonymous_args = 0
+ 155              		@ link register save eliminated.
+ 156              	.LVL8:
+ 336:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 337:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 338:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 339:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *(__IO uint32_t *) CLKCR_CLKEN_BB = (uint32_t)NewState;
+ 157              		.loc 1 339 0
+ 158 0000 014B     		ldr	r3, .L9
+ 159 0002 1860     		str	r0, [r3]
+ 160 0004 7047     		bx	lr
+ 161              	.L10:
+ 162 0006 00BF     		.align	2
+ 163              	.L9:
+ 164 0008 A0802542 		.word	1109754016
+ 165              		.cfi_endproc
+ 166              	.LFE113:
+ 168              		.section	.text.SDIO_SetPowerState,"ax",%progbits
+ 169              		.align	2
+ 170              		.global	SDIO_SetPowerState
+ 171              		.thumb
+ 172              		.thumb_func
+ 174              	SDIO_SetPowerState:
+ 175              	.LFB114:
+ 340:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 341:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 342:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 343:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Sets the power status of the controller.
+ 344:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_PowerState: new state of the Power state. 
+ 345:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          This parameter can be one of the following values:
+ 346:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_PowerState_OFF: SDIO Power OFF
+ 347:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_PowerState_ON: SDIO Power ON
+ 348:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 349:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 350:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_SetPowerState(uint32_t SDIO_PowerState)
+ 351:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 176              		.loc 1 351 0
+ 177              		.cfi_startproc
+ 178              		@ args = 0, pretend = 0, frame = 0
+ 179              		@ frame_needed = 0, uses_anonymous_args = 0
+ 180              		@ link register save eliminated.
+ 181              	.LVL9:
+ 352:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 353:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_POWER_STATE(SDIO_PowerState));
+ 354:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 355:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO->POWER = SDIO_PowerState;
+ 182              		.loc 1 355 0
+ 183 0000 014B     		ldr	r3, .L12
+ 184 0002 1860     		str	r0, [r3]
+ 185 0004 7047     		bx	lr
+ 186              	.L13:
+ 187 0006 00BF     		.align	2
+ 188              	.L12:
+ 189 0008 002C0140 		.word	1073818624
+ 190              		.cfi_endproc
+ 191              	.LFE114:
+ 193              		.section	.text.SDIO_GetPowerState,"ax",%progbits
+ 194              		.align	2
+ 195              		.global	SDIO_GetPowerState
+ 196              		.thumb
+ 197              		.thumb_func
+ 199              	SDIO_GetPowerState:
+ 200              	.LFB115:
+ 356:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 357:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 358:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 359:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Gets the power status of the controller.
+ 360:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  None
+ 361:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval Power status of the controller. The returned value can be one of the 
+ 362:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         following values:
+ 363:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            - 0x00: Power OFF
+ 364:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            - 0x02: Power UP
+ 365:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            - 0x03: Power ON 
+ 366:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 367:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** uint32_t SDIO_GetPowerState(void)
+ 368:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 201              		.loc 1 368 0
+ 202              		.cfi_startproc
+ 203              		@ args = 0, pretend = 0, frame = 0
+ 204              		@ frame_needed = 0, uses_anonymous_args = 0
+ 205              		@ link register save eliminated.
+ 369:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   return (SDIO->POWER & (~PWR_PWRCTRL_MASK));
+ 206              		.loc 1 369 0
+ 207 0000 024B     		ldr	r3, .L15
+ 208 0002 1868     		ldr	r0, [r3]
+ 370:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 209              		.loc 1 370 0
+ 210 0004 00F00300 		and	r0, r0, #3
+ 211 0008 7047     		bx	lr
+ 212              	.L16:
+ 213 000a 00BF     		.align	2
+ 214              	.L15:
+ 215 000c 002C0140 		.word	1073818624
+ 216              		.cfi_endproc
+ 217              	.LFE115:
+ 219              		.section	.text.SDIO_SendCommand,"ax",%progbits
+ 220              		.align	2
+ 221              		.global	SDIO_SendCommand
+ 222              		.thumb
+ 223              		.thumb_func
+ 225              	SDIO_SendCommand:
+ 226              	.LFB116:
+ 371:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 372:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 373:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @}
+ 374:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 375:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 376:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /** @defgroup SDIO_Group2 Command path state machine (CPSM) management functions
+ 377:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *  @brief   Command path state machine (CPSM) management functions 
+ 378:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *
+ 379:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @verbatim   
+ 380:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================
+ 381:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****         ##### Command path state machine (CPSM) management functions #####
+ 382:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================  
+ 383:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 384:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   This section provide functions allowing to program and read the Command path 
+ 385:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   state machine (CPSM).
+ 386:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 387:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @endverbatim
+ 388:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @{
+ 389:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 390:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 391:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 392:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Initializes the SDIO Command according to the specified 
+ 393:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         parameters in the SDIO_CmdInitStruct and send the command.
+ 394:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_CmdInitStruct : pointer to a SDIO_CmdInitTypeDef 
+ 395:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         structure that contains the configuration information for the SDIO 
+ 396:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         command.
+ 397:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 398:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 399:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_SendCommand(SDIO_CmdInitTypeDef *SDIO_CmdInitStruct)
+ 400:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 227              		.loc 1 400 0
+ 228              		.cfi_startproc
+ 229              		@ args = 0, pretend = 0, frame = 0
+ 230              		@ frame_needed = 0, uses_anonymous_args = 0
+ 231              		@ link register save eliminated.
+ 232              	.LVL10:
+ 401:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   uint32_t tmpreg = 0;
+ 402:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 403:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 404:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_CMD_INDEX(SDIO_CmdInitStruct->SDIO_CmdIndex));
+ 405:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_RESPONSE(SDIO_CmdInitStruct->SDIO_Response));
+ 406:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_WAIT(SDIO_CmdInitStruct->SDIO_Wait));
+ 407:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_CPSM(SDIO_CmdInitStruct->SDIO_CPSM));
+ 408:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 409:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /*---------------------------- SDIO ARG Configuration ------------------------*/
+ 410:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set the SDIO Argument value */
+ 411:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO->ARG = SDIO_CmdInitStruct->SDIO_Argument;
+ 233              		.loc 1 411 0
+ 234 0000 0949     		ldr	r1, .L19
+ 235 0002 0368     		ldr	r3, [r0]
+ 400:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   uint32_t tmpreg = 0;
+ 236              		.loc 1 400 0
+ 237 0004 30B4     		push	{r4, r5}
+ 238              	.LCFI3:
+ 239              		.cfi_def_cfa_offset 8
+ 240              		.cfi_offset 4, -8
+ 241              		.cfi_offset 5, -4
+ 242              		.loc 1 411 0
+ 243 0006 8B60     		str	r3, [r1, #8]
+ 412:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 413:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /*---------------------------- SDIO CMD Configuration ------------------------*/  
+ 414:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Get the SDIO CMD value */
+ 415:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   tmpreg = SDIO->CMD;
+ 416:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Clear CMDINDEX, WAITRESP, WAITINT, WAITPEND, CPSMEN bits */
+ 417:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   tmpreg &= CMD_CLEAR_MASK;
+ 418:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set CMDINDEX bits according to SDIO_CmdIndex value */
+ 419:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set WAITRESP bits according to SDIO_Response value */
+ 420:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set WAITINT and WAITPEND bits according to SDIO_Wait value */
+ 421:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set CPSMEN bits according to SDIO_CPSM value */
+ 422:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   tmpreg |= (uint32_t)SDIO_CmdInitStruct->SDIO_CmdIndex | SDIO_CmdInitStruct->SDIO_Response
+ 423:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            | SDIO_CmdInitStruct->SDIO_Wait | SDIO_CmdInitStruct->SDIO_CPSM;
+ 244              		.loc 1 423 0
+ 245 0008 031D     		adds	r3, r0, #4
+ 246 000a 38CB     		ldmia	r3, {r3, r4, r5}
+ 415:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Clear CMDINDEX, WAITRESP, WAITINT, WAITPEND, CPSMEN bits */
+ 247              		.loc 1 415 0
+ 248 000c CA68     		ldr	r2, [r1, #12]
+ 249              	.LVL11:
+ 250              		.loc 1 423 0
+ 251 000e 0069     		ldr	r0, [r0, #16]
+ 252              	.LVL12:
+ 422:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            | SDIO_CmdInitStruct->SDIO_Wait | SDIO_CmdInitStruct->SDIO_CPSM;
+ 253              		.loc 1 422 0
+ 254 0010 1C43     		orrs	r4, r4, r3
+ 255              		.loc 1 423 0
+ 256 0012 2C43     		orrs	r4, r4, r5
+ 417:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set CMDINDEX bits according to SDIO_CmdIndex value */
+ 257              		.loc 1 417 0
+ 258 0014 22F4FF63 		bic	r3, r2, #2040
+ 259 0018 23F00703 		bic	r3, r3, #7
+ 260              	.LVL13:
+ 261              		.loc 1 423 0
+ 262 001c 44EA0002 		orr	r2, r4, r0
+ 422:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            | SDIO_CmdInitStruct->SDIO_Wait | SDIO_CmdInitStruct->SDIO_CPSM;
+ 263              		.loc 1 422 0
+ 264 0020 1343     		orrs	r3, r3, r2
+ 265              	.LVL14:
+ 424:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 425:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Write to SDIO CMD */
+ 426:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO->CMD = tmpreg;
+ 266              		.loc 1 426 0
+ 267 0022 CB60     		str	r3, [r1, #12]
+ 427:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 268              		.loc 1 427 0
+ 269 0024 30BC     		pop	{r4, r5}
+ 270              	.LCFI4:
+ 271              		.cfi_restore 5
+ 272              		.cfi_restore 4
+ 273              		.cfi_def_cfa_offset 0
+ 274 0026 7047     		bx	lr
+ 275              	.L20:
+ 276              		.align	2
+ 277              	.L19:
+ 278 0028 002C0140 		.word	1073818624
+ 279              		.cfi_endproc
+ 280              	.LFE116:
+ 282              		.section	.text.SDIO_CmdStructInit,"ax",%progbits
+ 283              		.align	2
+ 284              		.global	SDIO_CmdStructInit
+ 285              		.thumb
+ 286              		.thumb_func
+ 288              	SDIO_CmdStructInit:
+ 289              	.LFB117:
+ 428:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 429:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 430:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Fills each SDIO_CmdInitStruct member with its default value.
+ 431:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_CmdInitStruct: pointer to an SDIO_CmdInitTypeDef 
+ 432:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         structure which will be initialized.
+ 433:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 434:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 435:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_CmdStructInit(SDIO_CmdInitTypeDef* SDIO_CmdInitStruct)
+ 436:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 290              		.loc 1 436 0
+ 291              		.cfi_startproc
+ 292              		@ args = 0, pretend = 0, frame = 0
+ 293              		@ frame_needed = 0, uses_anonymous_args = 0
+ 294              		@ link register save eliminated.
+ 295              	.LVL15:
+ 437:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* SDIO_CmdInitStruct members default value */
+ 438:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_CmdInitStruct->SDIO_Argument = 0x00;
+ 296              		.loc 1 438 0
+ 297 0000 0023     		movs	r3, #0
+ 298 0002 0360     		str	r3, [r0]
+ 439:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_CmdInitStruct->SDIO_CmdIndex = 0x00;
+ 299              		.loc 1 439 0
+ 300 0004 4360     		str	r3, [r0, #4]
+ 440:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_CmdInitStruct->SDIO_Response = SDIO_Response_No;
+ 301              		.loc 1 440 0
+ 302 0006 8360     		str	r3, [r0, #8]
+ 441:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_CmdInitStruct->SDIO_Wait = SDIO_Wait_No;
+ 303              		.loc 1 441 0
+ 304 0008 C360     		str	r3, [r0, #12]
+ 442:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_CmdInitStruct->SDIO_CPSM = SDIO_CPSM_Disable;
+ 305              		.loc 1 442 0
+ 306 000a 0361     		str	r3, [r0, #16]
+ 307 000c 7047     		bx	lr
+ 308              		.cfi_endproc
+ 309              	.LFE117:
+ 311 000e 00BF     		.section	.text.SDIO_GetCommandResponse,"ax",%progbits
+ 312              		.align	2
+ 313              		.global	SDIO_GetCommandResponse
+ 314              		.thumb
+ 315              		.thumb_func
+ 317              	SDIO_GetCommandResponse:
+ 318              	.LFB118:
+ 443:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 444:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 445:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 446:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Returns command index of last command for which response received.
+ 447:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  None
+ 448:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval Returns the command index of the last command response received.
+ 449:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 450:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** uint8_t SDIO_GetCommandResponse(void)
+ 451:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 319              		.loc 1 451 0
+ 320              		.cfi_startproc
+ 321              		@ args = 0, pretend = 0, frame = 0
+ 322              		@ frame_needed = 0, uses_anonymous_args = 0
+ 323              		@ link register save eliminated.
+ 452:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   return (uint8_t)(SDIO->RESPCMD);
+ 324              		.loc 1 452 0
+ 325 0000 014B     		ldr	r3, .L23
+ 326 0002 1869     		ldr	r0, [r3, #16]
+ 453:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 327              		.loc 1 453 0
+ 328 0004 C0B2     		uxtb	r0, r0
+ 329 0006 7047     		bx	lr
+ 330              	.L24:
+ 331              		.align	2
+ 332              	.L23:
+ 333 0008 002C0140 		.word	1073818624
+ 334              		.cfi_endproc
+ 335              	.LFE118:
+ 337              		.section	.text.SDIO_GetResponse,"ax",%progbits
+ 338              		.align	2
+ 339              		.global	SDIO_GetResponse
+ 340              		.thumb
+ 341              		.thumb_func
+ 343              	SDIO_GetResponse:
+ 344              	.LFB119:
+ 454:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 455:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 456:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Returns response received from the card for the last command.
+ 457:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_RESP: Specifies the SDIO response register. 
+ 458:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          This parameter can be one of the following values:
+ 459:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_RESP1: Response Register 1
+ 460:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_RESP2: Response Register 2
+ 461:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_RESP3: Response Register 3
+ 462:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_RESP4: Response Register 4
+ 463:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval The Corresponding response register value.
+ 464:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 465:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** uint32_t SDIO_GetResponse(uint32_t SDIO_RESP)
+ 466:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 345              		.loc 1 466 0
+ 346              		.cfi_startproc
+ 347              		@ args = 0, pretend = 0, frame = 8
+ 348              		@ frame_needed = 0, uses_anonymous_args = 0
+ 349              		@ link register save eliminated.
+ 350              	.LVL16:
+ 467:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   __IO uint32_t tmp = 0;
+ 468:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 469:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 470:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_RESP(SDIO_RESP));
+ 471:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 472:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   tmp = SDIO_RESP_ADDR + SDIO_RESP;
+ 351              		.loc 1 472 0
+ 352 0000 044B     		ldr	r3, .L27
+ 466:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   __IO uint32_t tmp = 0;
+ 353              		.loc 1 466 0
+ 354 0002 82B0     		sub	sp, sp, #8
+ 355              	.LCFI5:
+ 356              		.cfi_def_cfa_offset 8
+ 357              		.loc 1 472 0
+ 358 0004 0344     		add	r3, r3, r0
+ 467:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   __IO uint32_t tmp = 0;
+ 359              		.loc 1 467 0
+ 360 0006 0022     		movs	r2, #0
+ 361 0008 0192     		str	r2, [sp, #4]
+ 362              		.loc 1 472 0
+ 363 000a 0193     		str	r3, [sp, #4]
+ 473:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 474:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   return (*(__IO uint32_t *) tmp); 
+ 364              		.loc 1 474 0
+ 365 000c 019B     		ldr	r3, [sp, #4]
+ 366 000e 1868     		ldr	r0, [r3]
+ 367              	.LVL17:
+ 475:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 368              		.loc 1 475 0
+ 369 0010 02B0     		add	sp, sp, #8
+ 370              	.LCFI6:
+ 371              		.cfi_def_cfa_offset 0
+ 372              		@ sp needed
+ 373 0012 7047     		bx	lr
+ 374              	.L28:
+ 375              		.align	2
+ 376              	.L27:
+ 377 0014 142C0140 		.word	1073818644
+ 378              		.cfi_endproc
+ 379              	.LFE119:
+ 381              		.section	.text.SDIO_DataConfig,"ax",%progbits
+ 382              		.align	2
+ 383              		.global	SDIO_DataConfig
+ 384              		.thumb
+ 385              		.thumb_func
+ 387              	SDIO_DataConfig:
+ 388              	.LFB120:
+ 476:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 477:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 478:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @}
+ 479:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 480:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 481:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /** @defgroup SDIO_Group3 Data path state machine (DPSM) management functions
+ 482:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *  @brief   Data path state machine (DPSM) management functions
+ 483:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *
+ 484:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @verbatim   
+ 485:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================
+ 486:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****          ##### Data path state machine (DPSM) management functions #####
+ 487:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================  
+ 488:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 489:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   This section provide functions allowing to program and read the Data path 
+ 490:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   state machine (DPSM).
+ 491:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 492:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @endverbatim
+ 493:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @{
+ 494:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 495:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 496:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 497:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Initializes the SDIO data path according to the specified 
+ 498:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         parameters in the SDIO_DataInitStruct.
+ 499:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_DataInitStruct : pointer to a SDIO_DataInitTypeDef structure 
+ 500:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         that contains the configuration information for the SDIO command.
+ 501:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 502:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 503:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_DataConfig(SDIO_DataInitTypeDef* SDIO_DataInitStruct)
+ 504:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 389              		.loc 1 504 0
+ 390              		.cfi_startproc
+ 391              		@ args = 0, pretend = 0, frame = 0
+ 392              		@ frame_needed = 0, uses_anonymous_args = 0
+ 393              		@ link register save eliminated.
+ 394              	.LVL18:
+ 505:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   uint32_t tmpreg = 0;
+ 506:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 507:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 508:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_DATA_LENGTH(SDIO_DataInitStruct->SDIO_DataLength));
+ 509:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_BLOCK_SIZE(SDIO_DataInitStruct->SDIO_DataBlockSize));
+ 510:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_TRANSFER_DIR(SDIO_DataInitStruct->SDIO_TransferDir));
+ 511:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_TRANSFER_MODE(SDIO_DataInitStruct->SDIO_TransferMode));
+ 512:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_DPSM(SDIO_DataInitStruct->SDIO_DPSM));
+ 513:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 514:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /*---------------------------- SDIO DTIMER Configuration ---------------------*/
+ 515:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set the SDIO Data TimeOut value */
+ 516:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO->DTIMER = SDIO_DataInitStruct->SDIO_DataTimeOut;
+ 395              		.loc 1 516 0
+ 396 0000 094A     		ldr	r2, .L31
+ 397 0002 0368     		ldr	r3, [r0]
+ 504:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   uint32_t tmpreg = 0;
+ 398              		.loc 1 504 0
+ 399 0004 30B4     		push	{r4, r5}
+ 400              	.LCFI7:
+ 401              		.cfi_def_cfa_offset 8
+ 402              		.cfi_offset 4, -8
+ 403              		.cfi_offset 5, -4
+ 404              		.loc 1 516 0
+ 405 0006 5362     		str	r3, [r2, #36]
+ 517:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 518:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /*---------------------------- SDIO DLEN Configuration -----------------------*/
+ 519:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set the SDIO DataLength value */
+ 520:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO->DLEN = SDIO_DataInitStruct->SDIO_DataLength;
+ 406              		.loc 1 520 0
+ 407 0008 4368     		ldr	r3, [r0, #4]
+ 408 000a 9362     		str	r3, [r2, #40]
+ 521:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 522:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /*---------------------------- SDIO DCTRL Configuration ----------------------*/  
+ 523:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Get the SDIO DCTRL value */
+ 524:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   tmpreg = SDIO->DCTRL;
+ 525:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Clear DEN, DTMODE, DTDIR and DBCKSIZE bits */
+ 526:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   tmpreg &= DCTRL_CLEAR_MASK;
+ 527:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set DEN bit according to SDIO_DPSM value */
+ 528:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set DTMODE bit according to SDIO_TransferMode value */
+ 529:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set DTDIR bit according to SDIO_TransferDir value */
+ 530:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set DBCKSIZE bits according to SDIO_DataBlockSize value */
+ 531:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   tmpreg |= (uint32_t)SDIO_DataInitStruct->SDIO_DataBlockSize | SDIO_DataInitStruct->SDIO_TransferD
+ 409              		.loc 1 531 0
+ 410 000c C568     		ldr	r5, [r0, #12]
+ 411 000e 8168     		ldr	r1, [r0, #8]
+ 532:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            | SDIO_DataInitStruct->SDIO_TransferMode | SDIO_DataInitStruct->SDIO_DPSM;
+ 412              		.loc 1 532 0
+ 413 0010 0469     		ldr	r4, [r0, #16]
+ 524:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Clear DEN, DTMODE, DTDIR and DBCKSIZE bits */
+ 414              		.loc 1 524 0
+ 415 0012 D36A     		ldr	r3, [r2, #44]
+ 416              	.LVL19:
+ 417              		.loc 1 532 0
+ 418 0014 4069     		ldr	r0, [r0, #20]
+ 419              	.LVL20:
+ 531:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            | SDIO_DataInitStruct->SDIO_TransferMode | SDIO_DataInitStruct->SDIO_DPSM;
+ 420              		.loc 1 531 0
+ 421 0016 2943     		orrs	r1, r1, r5
+ 422              		.loc 1 532 0
+ 423 0018 2143     		orrs	r1, r1, r4
+ 424 001a 0143     		orrs	r1, r1, r0
+ 526:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Set DEN bit according to SDIO_DPSM value */
+ 425              		.loc 1 526 0
+ 426 001c 23F0F703 		bic	r3, r3, #247
+ 427              	.LVL21:
+ 531:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****            | SDIO_DataInitStruct->SDIO_TransferMode | SDIO_DataInitStruct->SDIO_DPSM;
+ 428              		.loc 1 531 0
+ 429 0020 0B43     		orrs	r3, r3, r1
+ 430              	.LVL22:
+ 533:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 534:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Write to SDIO DCTRL */
+ 535:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO->DCTRL = tmpreg;
+ 431              		.loc 1 535 0
+ 432 0022 D362     		str	r3, [r2, #44]
+ 536:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 433              		.loc 1 536 0
+ 434 0024 30BC     		pop	{r4, r5}
+ 435              	.LCFI8:
+ 436              		.cfi_restore 5
+ 437              		.cfi_restore 4
+ 438              		.cfi_def_cfa_offset 0
+ 439 0026 7047     		bx	lr
+ 440              	.L32:
+ 441              		.align	2
+ 442              	.L31:
+ 443 0028 002C0140 		.word	1073818624
+ 444              		.cfi_endproc
+ 445              	.LFE120:
+ 447              		.section	.text.SDIO_DataStructInit,"ax",%progbits
+ 448              		.align	2
+ 449              		.global	SDIO_DataStructInit
+ 450              		.thumb
+ 451              		.thumb_func
+ 453              	SDIO_DataStructInit:
+ 454              	.LFB121:
+ 537:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 538:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 539:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Fills each SDIO_DataInitStruct member with its default value.
+ 540:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_DataInitStruct: pointer to an SDIO_DataInitTypeDef structure 
+ 541:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         which will be initialized.
+ 542:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 543:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 544:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_DataStructInit(SDIO_DataInitTypeDef* SDIO_DataInitStruct)
+ 545:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 455              		.loc 1 545 0
+ 456              		.cfi_startproc
+ 457              		@ args = 0, pretend = 0, frame = 0
+ 458              		@ frame_needed = 0, uses_anonymous_args = 0
+ 459              		@ link register save eliminated.
+ 460              	.LVL23:
+ 546:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* SDIO_DataInitStruct members default value */
+ 547:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_DataInitStruct->SDIO_DataTimeOut = 0xFFFFFFFF;
+ 548:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_DataInitStruct->SDIO_DataLength = 0x00;
+ 461              		.loc 1 548 0
+ 462 0000 0023     		movs	r3, #0
+ 463 0002 4FF0FF32 		mov	r2, #-1
+ 464 0006 80E80C00 		stmia	r0, {r2, r3}
+ 549:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_DataInitStruct->SDIO_DataBlockSize = SDIO_DataBlockSize_1b;
+ 465              		.loc 1 549 0
+ 466 000a 8360     		str	r3, [r0, #8]
+ 550:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_DataInitStruct->SDIO_TransferDir = SDIO_TransferDir_ToCard;
+ 467              		.loc 1 550 0
+ 468 000c C360     		str	r3, [r0, #12]
+ 551:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_DataInitStruct->SDIO_TransferMode = SDIO_TransferMode_Block;  
+ 469              		.loc 1 551 0
+ 470 000e 0361     		str	r3, [r0, #16]
+ 552:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO_DataInitStruct->SDIO_DPSM = SDIO_DPSM_Disable;
+ 471              		.loc 1 552 0
+ 472 0010 4361     		str	r3, [r0, #20]
+ 473 0012 7047     		bx	lr
+ 474              		.cfi_endproc
+ 475              	.LFE121:
+ 477              		.section	.text.SDIO_GetDataCounter,"ax",%progbits
+ 478              		.align	2
+ 479              		.global	SDIO_GetDataCounter
+ 480              		.thumb
+ 481              		.thumb_func
+ 483              	SDIO_GetDataCounter:
+ 484              	.LFB122:
+ 553:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 554:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 555:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 556:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Returns number of remaining data bytes to be transferred.
+ 557:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  None
+ 558:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval Number of remaining data bytes to be transferred
+ 559:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 560:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** uint32_t SDIO_GetDataCounter(void)
+ 561:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 485              		.loc 1 561 0
+ 486              		.cfi_startproc
+ 487              		@ args = 0, pretend = 0, frame = 0
+ 488              		@ frame_needed = 0, uses_anonymous_args = 0
+ 489              		@ link register save eliminated.
+ 562:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   return SDIO->DCOUNT;
+ 490              		.loc 1 562 0
+ 491 0000 014B     		ldr	r3, .L35
+ 492 0002 186B     		ldr	r0, [r3, #48]
+ 563:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 493              		.loc 1 563 0
+ 494 0004 7047     		bx	lr
+ 495              	.L36:
+ 496 0006 00BF     		.align	2
+ 497              	.L35:
+ 498 0008 002C0140 		.word	1073818624
+ 499              		.cfi_endproc
+ 500              	.LFE122:
+ 502              		.section	.text.SDIO_ReadData,"ax",%progbits
+ 503              		.align	2
+ 504              		.global	SDIO_ReadData
+ 505              		.thumb
+ 506              		.thumb_func
+ 508              	SDIO_ReadData:
+ 509              	.LFB123:
+ 564:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 565:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 566:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Read one data word from Rx FIFO.
+ 567:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  None
+ 568:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval Data received
+ 569:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 570:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** uint32_t SDIO_ReadData(void)
+ 571:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 510              		.loc 1 571 0
+ 511              		.cfi_startproc
+ 512              		@ args = 0, pretend = 0, frame = 0
+ 513              		@ frame_needed = 0, uses_anonymous_args = 0
+ 514              		@ link register save eliminated.
+ 572:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   return SDIO->FIFO;
+ 515              		.loc 1 572 0
+ 516 0000 014B     		ldr	r3, .L38
+ 517 0002 D3F88000 		ldr	r0, [r3, #128]
+ 573:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 518              		.loc 1 573 0
+ 519 0006 7047     		bx	lr
+ 520              	.L39:
+ 521              		.align	2
+ 522              	.L38:
+ 523 0008 002C0140 		.word	1073818624
+ 524              		.cfi_endproc
+ 525              	.LFE123:
+ 527              		.section	.text.SDIO_WriteData,"ax",%progbits
+ 528              		.align	2
+ 529              		.global	SDIO_WriteData
+ 530              		.thumb
+ 531              		.thumb_func
+ 533              	SDIO_WriteData:
+ 534              	.LFB124:
+ 574:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 575:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 576:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Write one data word to Tx FIFO.
+ 577:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  Data: 32-bit data word to write.
+ 578:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 579:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 580:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_WriteData(uint32_t Data)
+ 581:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 535              		.loc 1 581 0
+ 536              		.cfi_startproc
+ 537              		@ args = 0, pretend = 0, frame = 0
+ 538              		@ frame_needed = 0, uses_anonymous_args = 0
+ 539              		@ link register save eliminated.
+ 540              	.LVL24:
+ 582:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO->FIFO = Data;
+ 541              		.loc 1 582 0
+ 542 0000 014B     		ldr	r3, .L41
+ 543 0002 C3F88000 		str	r0, [r3, #128]
+ 544 0006 7047     		bx	lr
+ 545              	.L42:
+ 546              		.align	2
+ 547              	.L41:
+ 548 0008 002C0140 		.word	1073818624
+ 549              		.cfi_endproc
+ 550              	.LFE124:
+ 552              		.section	.text.SDIO_GetFIFOCount,"ax",%progbits
+ 553              		.align	2
+ 554              		.global	SDIO_GetFIFOCount
+ 555              		.thumb
+ 556              		.thumb_func
+ 558              	SDIO_GetFIFOCount:
+ 559              	.LFB125:
+ 583:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 584:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 585:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 586:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Returns the number of words left to be written to or read from FIFO.	
+ 587:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  None
+ 588:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval Remaining number of words.
+ 589:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 590:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** uint32_t SDIO_GetFIFOCount(void)
+ 591:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 560              		.loc 1 591 0
+ 561              		.cfi_startproc
+ 562              		@ args = 0, pretend = 0, frame = 0
+ 563              		@ frame_needed = 0, uses_anonymous_args = 0
+ 564              		@ link register save eliminated.
+ 592:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   return SDIO->FIFOCNT;
+ 565              		.loc 1 592 0
+ 566 0000 014B     		ldr	r3, .L44
+ 567 0002 986C     		ldr	r0, [r3, #72]
+ 593:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 568              		.loc 1 593 0
+ 569 0004 7047     		bx	lr
+ 570              	.L45:
+ 571 0006 00BF     		.align	2
+ 572              	.L44:
+ 573 0008 002C0140 		.word	1073818624
+ 574              		.cfi_endproc
+ 575              	.LFE125:
+ 577              		.section	.text.SDIO_StartSDIOReadWait,"ax",%progbits
+ 578              		.align	2
+ 579              		.global	SDIO_StartSDIOReadWait
+ 580              		.thumb
+ 581              		.thumb_func
+ 583              	SDIO_StartSDIOReadWait:
+ 584              	.LFB126:
+ 594:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 595:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 596:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @}
+ 597:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 598:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 599:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /** @defgroup SDIO_Group4 SDIO IO Cards mode management functions
+ 600:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *  @brief   SDIO IO Cards mode management functions
+ 601:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *
+ 602:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @verbatim   
+ 603:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================
+ 604:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****                ##### SDIO IO Cards mode management functions #####
+ 605:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================  
+ 606:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 607:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   This section provide functions allowing to program and read the SDIO IO Cards.
+ 608:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 609:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @endverbatim
+ 610:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @{
+ 611:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 612:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 613:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 614:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Starts the SD I/O Read Wait operation.	
+ 615:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  NewState: new state of the Start SDIO Read Wait operation. 
+ 616:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         This parameter can be: ENABLE or DISABLE.
+ 617:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 618:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 619:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_StartSDIOReadWait(FunctionalState NewState)
+ 620:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 585              		.loc 1 620 0
+ 586              		.cfi_startproc
+ 587              		@ args = 0, pretend = 0, frame = 0
+ 588              		@ frame_needed = 0, uses_anonymous_args = 0
+ 589              		@ link register save eliminated.
+ 590              	.LVL25:
+ 621:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 622:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 623:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 624:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *(__IO uint32_t *) DCTRL_RWSTART_BB = (uint32_t) NewState;
+ 591              		.loc 1 624 0
+ 592 0000 014B     		ldr	r3, .L47
+ 593 0002 1860     		str	r0, [r3]
+ 594 0004 7047     		bx	lr
+ 595              	.L48:
+ 596 0006 00BF     		.align	2
+ 597              	.L47:
+ 598 0008 A0852542 		.word	1109755296
+ 599              		.cfi_endproc
+ 600              	.LFE126:
+ 602              		.section	.text.SDIO_StopSDIOReadWait,"ax",%progbits
+ 603              		.align	2
+ 604              		.global	SDIO_StopSDIOReadWait
+ 605              		.thumb
+ 606              		.thumb_func
+ 608              	SDIO_StopSDIOReadWait:
+ 609              	.LFB127:
+ 625:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 626:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 627:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 628:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Stops the SD I/O Read Wait operation.	
+ 629:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  NewState: new state of the Stop SDIO Read Wait operation. 
+ 630:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         This parameter can be: ENABLE or DISABLE.
+ 631:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 632:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 633:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_StopSDIOReadWait(FunctionalState NewState)
+ 634:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 610              		.loc 1 634 0
+ 611              		.cfi_startproc
+ 612              		@ args = 0, pretend = 0, frame = 0
+ 613              		@ frame_needed = 0, uses_anonymous_args = 0
+ 614              		@ link register save eliminated.
+ 615              	.LVL26:
+ 635:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 636:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 637:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 638:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *(__IO uint32_t *) DCTRL_RWSTOP_BB = (uint32_t) NewState;
+ 616              		.loc 1 638 0
+ 617 0000 014B     		ldr	r3, .L50
+ 618 0002 1860     		str	r0, [r3]
+ 619 0004 7047     		bx	lr
+ 620              	.L51:
+ 621 0006 00BF     		.align	2
+ 622              	.L50:
+ 623 0008 A4852542 		.word	1109755300
+ 624              		.cfi_endproc
+ 625              	.LFE127:
+ 627              		.section	.text.SDIO_SetSDIOReadWaitMode,"ax",%progbits
+ 628              		.align	2
+ 629              		.global	SDIO_SetSDIOReadWaitMode
+ 630              		.thumb
+ 631              		.thumb_func
+ 633              	SDIO_SetSDIOReadWaitMode:
+ 634              	.LFB128:
+ 639:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 640:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 641:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 642:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Sets one of the two options of inserting read wait interval.
+ 643:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_ReadWaitMode: SD I/O Read Wait operation mode.
+ 644:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          This parameter can be:
+ 645:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_ReadWaitMode_CLK: Read Wait control by stopping SDIOCLK
+ 646:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_ReadWaitMode_DATA2: Read Wait control using SDIO_DATA2
+ 647:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 648:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 649:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_SetSDIOReadWaitMode(uint32_t SDIO_ReadWaitMode)
+ 650:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 635              		.loc 1 650 0
+ 636              		.cfi_startproc
+ 637              		@ args = 0, pretend = 0, frame = 0
+ 638              		@ frame_needed = 0, uses_anonymous_args = 0
+ 639              		@ link register save eliminated.
+ 640              	.LVL27:
+ 651:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 652:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_READWAIT_MODE(SDIO_ReadWaitMode));
+ 653:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 654:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *(__IO uint32_t *) DCTRL_RWMOD_BB = SDIO_ReadWaitMode;
+ 641              		.loc 1 654 0
+ 642 0000 014B     		ldr	r3, .L53
+ 643 0002 1860     		str	r0, [r3]
+ 644 0004 7047     		bx	lr
+ 645              	.L54:
+ 646 0006 00BF     		.align	2
+ 647              	.L53:
+ 648 0008 A8852542 		.word	1109755304
+ 649              		.cfi_endproc
+ 650              	.LFE128:
+ 652              		.section	.text.SDIO_SetSDIOOperation,"ax",%progbits
+ 653              		.align	2
+ 654              		.global	SDIO_SetSDIOOperation
+ 655              		.thumb
+ 656              		.thumb_func
+ 658              	SDIO_SetSDIOOperation:
+ 659              	.LFB129:
+ 655:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 656:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 657:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 658:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Enables or disables the SD I/O Mode Operation.
+ 659:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  NewState: new state of SDIO specific operation. 
+ 660:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         This parameter can be: ENABLE or DISABLE.
+ 661:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 662:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 663:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_SetSDIOOperation(FunctionalState NewState)
+ 664:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 660              		.loc 1 664 0
+ 661              		.cfi_startproc
+ 662              		@ args = 0, pretend = 0, frame = 0
+ 663              		@ frame_needed = 0, uses_anonymous_args = 0
+ 664              		@ link register save eliminated.
+ 665              	.LVL28:
+ 665:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 666:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 667:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 668:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *(__IO uint32_t *) DCTRL_SDIOEN_BB = (uint32_t)NewState;
+ 666              		.loc 1 668 0
+ 667 0000 014B     		ldr	r3, .L56
+ 668 0002 1860     		str	r0, [r3]
+ 669 0004 7047     		bx	lr
+ 670              	.L57:
+ 671 0006 00BF     		.align	2
+ 672              	.L56:
+ 673 0008 AC852542 		.word	1109755308
+ 674              		.cfi_endproc
+ 675              	.LFE129:
+ 677              		.section	.text.SDIO_SendSDIOSuspendCmd,"ax",%progbits
+ 678              		.align	2
+ 679              		.global	SDIO_SendSDIOSuspendCmd
+ 680              		.thumb
+ 681              		.thumb_func
+ 683              	SDIO_SendSDIOSuspendCmd:
+ 684              	.LFB130:
+ 669:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 670:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 671:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 672:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Enables or disables the SD I/O Mode suspend command sending.
+ 673:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  NewState: new state of the SD I/O Mode suspend command.
+ 674:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         This parameter can be: ENABLE or DISABLE.
+ 675:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 676:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 677:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_SendSDIOSuspendCmd(FunctionalState NewState)
+ 678:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 685              		.loc 1 678 0
+ 686              		.cfi_startproc
+ 687              		@ args = 0, pretend = 0, frame = 0
+ 688              		@ frame_needed = 0, uses_anonymous_args = 0
+ 689              		@ link register save eliminated.
+ 690              	.LVL29:
+ 679:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 680:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 681:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 682:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *(__IO uint32_t *) CMD_SDIOSUSPEND_BB = (uint32_t)NewState;
+ 691              		.loc 1 682 0
+ 692 0000 014B     		ldr	r3, .L59
+ 693 0002 1860     		str	r0, [r3]
+ 694 0004 7047     		bx	lr
+ 695              	.L60:
+ 696 0006 00BF     		.align	2
+ 697              	.L59:
+ 698 0008 AC812542 		.word	1109754284
+ 699              		.cfi_endproc
+ 700              	.LFE130:
+ 702              		.section	.text.SDIO_CommandCompletionCmd,"ax",%progbits
+ 703              		.align	2
+ 704              		.global	SDIO_CommandCompletionCmd
+ 705              		.thumb
+ 706              		.thumb_func
+ 708              	SDIO_CommandCompletionCmd:
+ 709              	.LFB131:
+ 683:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 684:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 685:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 686:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @}
+ 687:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 688:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 689:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /** @defgroup SDIO_Group5 CE-ATA mode management functions
+ 690:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *  @brief   CE-ATA mode management functions
+ 691:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *
+ 692:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @verbatim   
+ 693:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================
+ 694:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****                   ##### CE-ATA mode management functions #####
+ 695:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================  
+ 696:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 697:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   This section provide functions allowing to program and read the CE-ATA card.
+ 698:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 699:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @endverbatim
+ 700:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @{
+ 701:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 702:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 703:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 704:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Enables or disables the command completion signal.
+ 705:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  NewState: new state of command completion signal. 
+ 706:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         This parameter can be: ENABLE or DISABLE.
+ 707:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 708:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 709:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_CommandCompletionCmd(FunctionalState NewState)
+ 710:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 710              		.loc 1 710 0
+ 711              		.cfi_startproc
+ 712              		@ args = 0, pretend = 0, frame = 0
+ 713              		@ frame_needed = 0, uses_anonymous_args = 0
+ 714              		@ link register save eliminated.
+ 715              	.LVL30:
+ 711:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 712:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 713:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 714:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *(__IO uint32_t *) CMD_ENCMDCOMPL_BB = (uint32_t)NewState;
+ 716              		.loc 1 714 0
+ 717 0000 014B     		ldr	r3, .L62
+ 718 0002 1860     		str	r0, [r3]
+ 719 0004 7047     		bx	lr
+ 720              	.L63:
+ 721 0006 00BF     		.align	2
+ 722              	.L62:
+ 723 0008 B0812542 		.word	1109754288
+ 724              		.cfi_endproc
+ 725              	.LFE131:
+ 727              		.section	.text.SDIO_CEATAITCmd,"ax",%progbits
+ 728              		.align	2
+ 729              		.global	SDIO_CEATAITCmd
+ 730              		.thumb
+ 731              		.thumb_func
+ 733              	SDIO_CEATAITCmd:
+ 734              	.LFB132:
+ 715:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 716:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 717:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 718:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Enables or disables the CE-ATA interrupt.
+ 719:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  NewState: new state of CE-ATA interrupt. 
+ 720:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         This parameter can be: ENABLE or DISABLE.
+ 721:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 722:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 723:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_CEATAITCmd(FunctionalState NewState)
+ 724:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 735              		.loc 1 724 0
+ 736              		.cfi_startproc
+ 737              		@ args = 0, pretend = 0, frame = 0
+ 738              		@ frame_needed = 0, uses_anonymous_args = 0
+ 739              		@ link register save eliminated.
+ 740              	.LVL31:
+ 725:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 726:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 727:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 728:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *(__IO uint32_t *) CMD_NIEN_BB = (uint32_t)((~((uint32_t)NewState)) & ((uint32_t)0x1));
+ 741              		.loc 1 728 0
+ 742 0000 00F00100 		and	r0, r0, #1
+ 743              	.LVL32:
+ 744 0004 024B     		ldr	r3, .L65
+ 745 0006 80F00100 		eor	r0, r0, #1
+ 746 000a 1860     		str	r0, [r3]
+ 747 000c 7047     		bx	lr
+ 748              	.L66:
+ 749 000e 00BF     		.align	2
+ 750              	.L65:
+ 751 0010 B4812542 		.word	1109754292
+ 752              		.cfi_endproc
+ 753              	.LFE132:
+ 755              		.section	.text.SDIO_SendCEATACmd,"ax",%progbits
+ 756              		.align	2
+ 757              		.global	SDIO_SendCEATACmd
+ 758              		.thumb
+ 759              		.thumb_func
+ 761              	SDIO_SendCEATACmd:
+ 762              	.LFB133:
+ 729:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 730:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 731:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 732:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Sends CE-ATA command (CMD61).
+ 733:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  NewState: new state of CE-ATA command. 
+ 734:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *         This parameter can be: ENABLE or DISABLE.
+ 735:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 736:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 737:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_SendCEATACmd(FunctionalState NewState)
+ 738:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 763              		.loc 1 738 0
+ 764              		.cfi_startproc
+ 765              		@ args = 0, pretend = 0, frame = 0
+ 766              		@ frame_needed = 0, uses_anonymous_args = 0
+ 767              		@ link register save eliminated.
+ 768              	.LVL33:
+ 739:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 740:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 741:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 742:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *(__IO uint32_t *) CMD_ATACMD_BB = (uint32_t)NewState;
+ 769              		.loc 1 742 0
+ 770 0000 014B     		ldr	r3, .L68
+ 771 0002 1860     		str	r0, [r3]
+ 772 0004 7047     		bx	lr
+ 773              	.L69:
+ 774 0006 00BF     		.align	2
+ 775              	.L68:
+ 776 0008 B8812542 		.word	1109754296
+ 777              		.cfi_endproc
+ 778              	.LFE133:
+ 780              		.section	.text.SDIO_DMACmd,"ax",%progbits
+ 781              		.align	2
+ 782              		.global	SDIO_DMACmd
+ 783              		.thumb
+ 784              		.thumb_func
+ 786              	SDIO_DMACmd:
+ 787              	.LFB134:
+ 743:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 744:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 745:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 746:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @}
+ 747:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 748:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 749:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /** @defgroup SDIO_Group6 DMA transfers management functions
+ 750:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *  @brief   DMA transfers management functions
+ 751:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *
+ 752:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @verbatim   
+ 753:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================
+ 754:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****                   ##### DMA transfers management functions #####
+ 755:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================  
+ 756:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 757:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   This section provide functions allowing to program SDIO DMA transfer.
+ 758:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 759:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @endverbatim
+ 760:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @{
+ 761:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 762:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 763:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 764:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Enables or disables the SDIO DMA request.
+ 765:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  NewState: new state of the selected SDIO DMA request.
+ 766:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          This parameter can be: ENABLE or DISABLE.
+ 767:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 768:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 769:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_DMACmd(FunctionalState NewState)
+ 770:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 788              		.loc 1 770 0
+ 789              		.cfi_startproc
+ 790              		@ args = 0, pretend = 0, frame = 0
+ 791              		@ frame_needed = 0, uses_anonymous_args = 0
+ 792              		@ link register save eliminated.
+ 793              	.LVL34:
+ 771:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 772:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 773:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 774:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *(__IO uint32_t *) DCTRL_DMAEN_BB = (uint32_t)NewState;
+ 794              		.loc 1 774 0
+ 795 0000 014B     		ldr	r3, .L71
+ 796 0002 1860     		str	r0, [r3]
+ 797 0004 7047     		bx	lr
+ 798              	.L72:
+ 799 0006 00BF     		.align	2
+ 800              	.L71:
+ 801 0008 8C852542 		.word	1109755276
+ 802              		.cfi_endproc
+ 803              	.LFE134:
+ 805              		.section	.text.SDIO_ITConfig,"ax",%progbits
+ 806              		.align	2
+ 807              		.global	SDIO_ITConfig
+ 808              		.thumb
+ 809              		.thumb_func
+ 811              	SDIO_ITConfig:
+ 812              	.LFB135:
+ 775:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 776:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 777:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 778:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @}
+ 779:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 780:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 781:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /** @defgroup SDIO_Group7 Interrupts and flags management functions
+ 782:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *  @brief   Interrupts and flags management functions  
+ 783:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  *
+ 784:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @verbatim   
+ 785:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================
+ 786:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****               ##### Interrupts and flags management functions #####
+ 787:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****  ===============================================================================  
+ 788:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 789:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 790:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** @endverbatim
+ 791:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @{
+ 792:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 793:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 794:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 795:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Enables or disables the SDIO interrupts.
+ 796:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_IT: specifies the SDIO interrupt sources to be enabled or disabled.
+ 797:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          This parameter can be one or a combination of the following values:
+ 798:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CCRCFAIL: Command response received (CRC check failed) interrupt
+ 799:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DCRCFAIL: Data block sent/received (CRC check failed) interrupt
+ 800:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CTIMEOUT: Command response timeout interrupt
+ 801:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DTIMEOUT: Data timeout interrupt
+ 802:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXUNDERR: Transmit FIFO underrun error interrupt
+ 803:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXOVERR:  Received FIFO overrun error interrupt
+ 804:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CMDREND:  Command response received (CRC check passed) interrupt
+ 805:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CMDSENT:  Command sent (no response required) interrupt
+ 806:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DATAEND:  Data end (data counter, SDIDCOUNT, is zero) interrupt
+ 807:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_STBITERR: Start bit not detected on all data signals in wide 
+ 808:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *                                   bus mode interrupt
+ 809:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DBCKEND:  Data block sent/received (CRC check passed) interrupt
+ 810:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CMDACT:   Command transfer in progress interrupt
+ 811:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXACT:    Data transmit in progress interrupt
+ 812:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXACT:    Data receive in progress interrupt
+ 813:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXFIFOHE: Transmit FIFO Half Empty interrupt
+ 814:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXFIFOHF: Receive FIFO Half Full interrupt
+ 815:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXFIFOF:  Transmit FIFO full interrupt
+ 816:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXFIFOF:  Receive FIFO full interrupt
+ 817:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXFIFOE:  Transmit FIFO empty interrupt
+ 818:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXFIFOE:  Receive FIFO empty interrupt
+ 819:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXDAVL:   Data available in transmit FIFO interrupt
+ 820:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXDAVL:   Data available in receive FIFO interrupt
+ 821:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_SDIOIT:   SD I/O interrupt received interrupt
+ 822:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CEATAEND: CE-ATA command completion signal received for CMD61 interrupt
+ 823:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  NewState: new state of the specified SDIO interrupts.
+ 824:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          This parameter can be: ENABLE or DISABLE.
+ 825:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None 
+ 826:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 827:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_ITConfig(uint32_t SDIO_IT, FunctionalState NewState)
+ 828:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** {
+ 813              		.loc 1 828 0
+ 814              		.cfi_startproc
+ 815              		@ args = 0, pretend = 0, frame = 0
+ 816              		@ frame_needed = 0, uses_anonymous_args = 0
+ 817              		@ link register save eliminated.
+ 818              	.LVL35:
+ 829:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 830:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_IT(SDIO_IT));
+ 831:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 832:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 833:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   if (NewState != DISABLE)
+ 834:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   {
+ 835:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****     /* Enable the SDIO interrupts */
+ 836:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****     SDIO->MASK |= SDIO_IT;
+ 819              		.loc 1 836 0
+ 820 0000 044A     		ldr	r2, .L78
+ 821 0002 D36B     		ldr	r3, [r2, #60]
+ 833:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   {
+ 822              		.loc 1 833 0
+ 823 0004 19B9     		cbnz	r1, .L77
+ 837:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   }
+ 838:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   else
+ 839:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   {
+ 840:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****     /* Disable the SDIO interrupts */
+ 841:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****     SDIO->MASK &= ~SDIO_IT;
+ 824              		.loc 1 841 0
+ 825 0006 23EA0000 		bic	r0, r3, r0
+ 826              	.LVL36:
+ 827 000a D063     		str	r0, [r2, #60]
+ 828 000c 7047     		bx	lr
+ 829              	.LVL37:
+ 830              	.L77:
+ 836:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   }
+ 831              		.loc 1 836 0
+ 832 000e 1843     		orrs	r0, r0, r3
+ 833              	.LVL38:
+ 834 0010 D063     		str	r0, [r2, #60]
+ 835 0012 7047     		bx	lr
+ 836              	.L79:
+ 837              		.align	2
+ 838              	.L78:
+ 839 0014 002C0140 		.word	1073818624
+ 840              		.cfi_endproc
+ 841              	.LFE135:
+ 843              		.section	.text.SDIO_GetFlagStatus,"ax",%progbits
+ 844              		.align	2
+ 845              		.global	SDIO_GetFlagStatus
+ 846              		.thumb
+ 847              		.thumb_func
+ 849              	SDIO_GetFlagStatus:
+ 850              	.LFB136:
+ 842:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   } 
+ 843:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 844:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 845:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 846:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Checks whether the specified SDIO flag is set or not.
+ 847:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_FLAG: specifies the flag to check. 
+ 848:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          This parameter can be one of the following values:
+ 849:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CCRCFAIL: Command response received (CRC check failed)
+ 850:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_DCRCFAIL: Data block sent/received (CRC check failed)
+ 851:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CTIMEOUT: Command response timeout
+ 852:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_DTIMEOUT: Data timeout
+ 853:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_TXUNDERR: Transmit FIFO underrun error
+ 854:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_RXOVERR:  Received FIFO overrun error
+ 855:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CMDREND:  Command response received (CRC check passed)
+ 856:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CMDSENT:  Command sent (no response required)
+ 857:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_DATAEND:  Data end (data counter, SDIDCOUNT, is zero)
+ 858:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_STBITERR: Start bit not detected on all data signals in wide bus mode
+ 859:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_DBCKEND:  Data block sent/received (CRC check passed)
+ 860:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CMDACT:   Command transfer in progress
+ 861:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_TXACT:    Data transmit in progress
+ 862:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_RXACT:    Data receive in progress
+ 863:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_TXFIFOHE: Transmit FIFO Half Empty
+ 864:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_RXFIFOHF: Receive FIFO Half Full
+ 865:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_TXFIFOF:  Transmit FIFO full
+ 866:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_RXFIFOF:  Receive FIFO full
+ 867:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_TXFIFOE:  Transmit FIFO empty
+ 868:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_RXFIFOE:  Receive FIFO empty
+ 869:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_TXDAVL:   Data available in transmit FIFO
+ 870:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_RXDAVL:   Data available in receive FIFO
+ 871:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_SDIOIT:   SD I/O interrupt received
+ 872:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CEATAEND: CE-ATA command completion signal received for CMD61
+ 873:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval The new state of SDIO_FLAG (SET or RESET).
+ 874:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 875:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** FlagStatus SDIO_GetFlagStatus(uint32_t SDIO_FLAG)
+ 876:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 851              		.loc 1 876 0
+ 852              		.cfi_startproc
+ 853              		@ args = 0, pretend = 0, frame = 0
+ 854              		@ frame_needed = 0, uses_anonymous_args = 0
+ 855              		@ link register save eliminated.
+ 856              	.LVL39:
+ 877:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   FlagStatus bitstatus = RESET;
+ 878:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 879:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 880:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_FLAG(SDIO_FLAG));
+ 881:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 882:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   if ((SDIO->STA & SDIO_FLAG) != (uint32_t)RESET)
+ 857              		.loc 1 882 0
+ 858 0000 034B     		ldr	r3, .L81
+ 859 0002 5B6B     		ldr	r3, [r3, #52]
+ 860              	.LVL40:
+ 861 0004 1842     		tst	r0, r3
+ 883:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   {
+ 884:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****     bitstatus = SET;
+ 885:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   }
+ 886:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   else
+ 887:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   {
+ 888:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****     bitstatus = RESET;
+ 889:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   }
+ 890:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   return bitstatus;
+ 891:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 862              		.loc 1 891 0
+ 863 0006 14BF     		ite	ne
+ 864 0008 0120     		movne	r0, #1
+ 865              	.LVL41:
+ 866 000a 0020     		moveq	r0, #0
+ 867 000c 7047     		bx	lr
+ 868              	.L82:
+ 869 000e 00BF     		.align	2
+ 870              	.L81:
+ 871 0010 002C0140 		.word	1073818624
+ 872              		.cfi_endproc
+ 873              	.LFE136:
+ 875              		.section	.text.SDIO_ClearFlag,"ax",%progbits
+ 876              		.align	2
+ 877              		.global	SDIO_ClearFlag
+ 878              		.thumb
+ 879              		.thumb_func
+ 881              	SDIO_ClearFlag:
+ 882              	.LFB137:
+ 892:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 893:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 894:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Clears the SDIO's pending flags.
+ 895:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_FLAG: specifies the flag to clear.  
+ 896:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          This parameter can be one or a combination of the following values:
+ 897:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CCRCFAIL: Command response received (CRC check failed)
+ 898:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_DCRCFAIL: Data block sent/received (CRC check failed)
+ 899:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CTIMEOUT: Command response timeout
+ 900:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_DTIMEOUT: Data timeout
+ 901:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_TXUNDERR: Transmit FIFO underrun error
+ 902:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_RXOVERR:  Received FIFO overrun error
+ 903:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CMDREND:  Command response received (CRC check passed)
+ 904:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CMDSENT:  Command sent (no response required)
+ 905:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_DATAEND:  Data end (data counter, SDIDCOUNT, is zero)
+ 906:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_STBITERR: Start bit not detected on all data signals in wide bus mode
+ 907:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_DBCKEND:  Data block sent/received (CRC check passed)
+ 908:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_SDIOIT:   SD I/O interrupt received
+ 909:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_FLAG_CEATAEND: CE-ATA command completion signal received for CMD61
+ 910:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 911:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 912:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_ClearFlag(uint32_t SDIO_FLAG)
+ 913:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 883              		.loc 1 913 0
+ 884              		.cfi_startproc
+ 885              		@ args = 0, pretend = 0, frame = 0
+ 886              		@ frame_needed = 0, uses_anonymous_args = 0
+ 887              		@ link register save eliminated.
+ 888              	.LVL42:
+ 914:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 915:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_CLEAR_FLAG(SDIO_FLAG));
+ 916:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    
+ 917:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO->ICR = SDIO_FLAG;
+ 889              		.loc 1 917 0
+ 890 0000 014B     		ldr	r3, .L84
+ 891 0002 9863     		str	r0, [r3, #56]
+ 892 0004 7047     		bx	lr
+ 893              	.L85:
+ 894 0006 00BF     		.align	2
+ 895              	.L84:
+ 896 0008 002C0140 		.word	1073818624
+ 897              		.cfi_endproc
+ 898              	.LFE137:
+ 900              		.section	.text.SDIO_GetITStatus,"ax",%progbits
+ 901              		.align	2
+ 902              		.global	SDIO_GetITStatus
+ 903              		.thumb
+ 904              		.thumb_func
+ 906              	SDIO_GetITStatus:
+ 907              	.LFB138:
+ 918:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 919:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 920:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 921:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Checks whether the specified SDIO interrupt has occurred or not.
+ 922:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_IT: specifies the SDIO interrupt source to check. 
+ 923:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          This parameter can be one of the following values:
+ 924:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CCRCFAIL: Command response received (CRC check failed) interrupt
+ 925:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DCRCFAIL: Data block sent/received (CRC check failed) interrupt
+ 926:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CTIMEOUT: Command response timeout interrupt
+ 927:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DTIMEOUT: Data timeout interrupt
+ 928:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXUNDERR: Transmit FIFO underrun error interrupt
+ 929:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXOVERR:  Received FIFO overrun error interrupt
+ 930:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CMDREND:  Command response received (CRC check passed) interrupt
+ 931:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CMDSENT:  Command sent (no response required) interrupt
+ 932:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DATAEND:  Data end (data counter, SDIDCOUNT, is zero) interrupt
+ 933:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_STBITERR: Start bit not detected on all data signals in wide 
+ 934:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *                                   bus mode interrupt
+ 935:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DBCKEND:  Data block sent/received (CRC check passed) interrupt
+ 936:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CMDACT:   Command transfer in progress interrupt
+ 937:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXACT:    Data transmit in progress interrupt
+ 938:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXACT:    Data receive in progress interrupt
+ 939:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXFIFOHE: Transmit FIFO Half Empty interrupt
+ 940:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXFIFOHF: Receive FIFO Half Full interrupt
+ 941:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXFIFOF:  Transmit FIFO full interrupt
+ 942:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXFIFOF:  Receive FIFO full interrupt
+ 943:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXFIFOE:  Transmit FIFO empty interrupt
+ 944:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXFIFOE:  Receive FIFO empty interrupt
+ 945:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXDAVL:   Data available in transmit FIFO interrupt
+ 946:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXDAVL:   Data available in receive FIFO interrupt
+ 947:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_SDIOIT:   SD I/O interrupt received interrupt
+ 948:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CEATAEND: CE-ATA command completion signal received for CMD61 interrupt
+ 949:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval The new state of SDIO_IT (SET or RESET).
+ 950:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 951:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** ITStatus SDIO_GetITStatus(uint32_t SDIO_IT)
+ 952:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 908              		.loc 1 952 0
+ 909              		.cfi_startproc
+ 910              		@ args = 0, pretend = 0, frame = 0
+ 911              		@ frame_needed = 0, uses_anonymous_args = 0
+ 912              		@ link register save eliminated.
+ 913              	.LVL43:
+ 953:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   ITStatus bitstatus = RESET;
+ 954:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   
+ 955:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 956:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_GET_IT(SDIO_IT));
+ 957:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   if ((SDIO->STA & SDIO_IT) != (uint32_t)RESET)  
+ 914              		.loc 1 957 0
+ 915 0000 034B     		ldr	r3, .L87
+ 916 0002 5B6B     		ldr	r3, [r3, #52]
+ 917              	.LVL44:
+ 918 0004 1842     		tst	r0, r3
+ 958:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   {
+ 959:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****     bitstatus = SET;
+ 960:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   }
+ 961:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   else
+ 962:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   {
+ 963:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****     bitstatus = RESET;
+ 964:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   }
+ 965:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   return bitstatus;
+ 966:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** }
+ 919              		.loc 1 966 0
+ 920 0006 14BF     		ite	ne
+ 921 0008 0120     		movne	r0, #1
+ 922              	.LVL45:
+ 923 000a 0020     		moveq	r0, #0
+ 924 000c 7047     		bx	lr
+ 925              	.L88:
+ 926 000e 00BF     		.align	2
+ 927              	.L87:
+ 928 0010 002C0140 		.word	1073818624
+ 929              		.cfi_endproc
+ 930              	.LFE138:
+ 932              		.section	.text.SDIO_ClearITPendingBit,"ax",%progbits
+ 933              		.align	2
+ 934              		.global	SDIO_ClearITPendingBit
+ 935              		.thumb
+ 936              		.thumb_func
+ 938              	SDIO_ClearITPendingBit:
+ 939              	.LFB139:
+ 967:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** 
+ 968:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** /**
+ 969:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @brief  Clears the SDIO's interrupt pending bits.
+ 970:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @param  SDIO_IT: specifies the interrupt pending bit to clear. 
+ 971:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *          This parameter can be one or a combination of the following values:
+ 972:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CCRCFAIL: Command response received (CRC check failed) interrupt
+ 973:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DCRCFAIL: Data block sent/received (CRC check failed) interrupt
+ 974:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CTIMEOUT: Command response timeout interrupt
+ 975:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DTIMEOUT: Data timeout interrupt
+ 976:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_TXUNDERR: Transmit FIFO underrun error interrupt
+ 977:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_RXOVERR:  Received FIFO overrun error interrupt
+ 978:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CMDREND:  Command response received (CRC check passed) interrupt
+ 979:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CMDSENT:  Command sent (no response required) interrupt
+ 980:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_DATAEND:  Data end (data counter, SDIO_DCOUNT, is zero) interrupt
+ 981:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_STBITERR: Start bit not detected on all data signals in wide 
+ 982:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *                                   bus mode interrupt
+ 983:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_SDIOIT:   SD I/O interrupt received interrupt
+ 984:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   *            @arg SDIO_IT_CEATAEND: CE-ATA command completion signal received for CMD61
+ 985:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   * @retval None
+ 986:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   */
+ 987:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** void SDIO_ClearITPendingBit(uint32_t SDIO_IT)
+ 988:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c **** { 
+ 940              		.loc 1 988 0
+ 941              		.cfi_startproc
+ 942              		@ args = 0, pretend = 0, frame = 0
+ 943              		@ frame_needed = 0, uses_anonymous_args = 0
+ 944              		@ link register save eliminated.
+ 945              	.LVL46:
+ 989:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   /* Check the parameters */
+ 990:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   assert_param(IS_SDIO_CLEAR_IT(SDIO_IT));
+ 991:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****    
+ 992:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c ****   SDIO->ICR = SDIO_IT;
+ 946              		.loc 1 992 0
+ 947 0000 014B     		ldr	r3, .L90
+ 948 0002 9863     		str	r0, [r3, #56]
+ 949 0004 7047     		bx	lr
+ 950              	.L91:
+ 951 0006 00BF     		.align	2
+ 952              	.L90:
+ 953 0008 002C0140 		.word	1073818624
+ 954              		.cfi_endproc
+ 955              	.LFE139:
+ 957              		.text
+ 958              	.Letext0:
+ 959              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\4.9 2014q4\\arm-none-eabi\\include\\mach
+ 960              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\4.9 2014q4\\arm-none-eabi\\include\\stdi
+ 961              		.file 4 "libs/Device/STM32F4xx/Include/stm32f4xx.h"
+ 962              		.file 5 "libs/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_sdio.h"
+ 963              		.file 6 "libs/CMSIS/Include/core_cm4.h"
+ 964              		.file 7 "libs/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_sdio.c
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:20     .text.SDIO_DeInit:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:25     .text.SDIO_DeInit:00000000 SDIO_DeInit
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:58     .text.SDIO_Init:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:63     .text.SDIO_Init:00000000 SDIO_Init
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:108    .text.SDIO_Init:00000030 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:113    .text.SDIO_StructInit:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:118    .text.SDIO_StructInit:00000000 SDIO_StructInit
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:144    .text.SDIO_ClockCmd:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:149    .text.SDIO_ClockCmd:00000000 SDIO_ClockCmd
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:164    .text.SDIO_ClockCmd:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:169    .text.SDIO_SetPowerState:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:174    .text.SDIO_SetPowerState:00000000 SDIO_SetPowerState
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:189    .text.SDIO_SetPowerState:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:194    .text.SDIO_GetPowerState:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:199    .text.SDIO_GetPowerState:00000000 SDIO_GetPowerState
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:215    .text.SDIO_GetPowerState:0000000c $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:220    .text.SDIO_SendCommand:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:225    .text.SDIO_SendCommand:00000000 SDIO_SendCommand
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:278    .text.SDIO_SendCommand:00000028 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:283    .text.SDIO_CmdStructInit:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:288    .text.SDIO_CmdStructInit:00000000 SDIO_CmdStructInit
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:312    .text.SDIO_GetCommandResponse:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:317    .text.SDIO_GetCommandResponse:00000000 SDIO_GetCommandResponse
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:333    .text.SDIO_GetCommandResponse:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:338    .text.SDIO_GetResponse:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:343    .text.SDIO_GetResponse:00000000 SDIO_GetResponse
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:377    .text.SDIO_GetResponse:00000014 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:382    .text.SDIO_DataConfig:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:387    .text.SDIO_DataConfig:00000000 SDIO_DataConfig
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:443    .text.SDIO_DataConfig:00000028 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:448    .text.SDIO_DataStructInit:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:453    .text.SDIO_DataStructInit:00000000 SDIO_DataStructInit
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:478    .text.SDIO_GetDataCounter:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:483    .text.SDIO_GetDataCounter:00000000 SDIO_GetDataCounter
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:498    .text.SDIO_GetDataCounter:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:503    .text.SDIO_ReadData:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:508    .text.SDIO_ReadData:00000000 SDIO_ReadData
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:523    .text.SDIO_ReadData:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:528    .text.SDIO_WriteData:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:533    .text.SDIO_WriteData:00000000 SDIO_WriteData
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:548    .text.SDIO_WriteData:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:553    .text.SDIO_GetFIFOCount:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:558    .text.SDIO_GetFIFOCount:00000000 SDIO_GetFIFOCount
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:573    .text.SDIO_GetFIFOCount:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:578    .text.SDIO_StartSDIOReadWait:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:583    .text.SDIO_StartSDIOReadWait:00000000 SDIO_StartSDIOReadWait
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:598    .text.SDIO_StartSDIOReadWait:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:603    .text.SDIO_StopSDIOReadWait:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:608    .text.SDIO_StopSDIOReadWait:00000000 SDIO_StopSDIOReadWait
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:623    .text.SDIO_StopSDIOReadWait:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:628    .text.SDIO_SetSDIOReadWaitMode:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:633    .text.SDIO_SetSDIOReadWaitMode:00000000 SDIO_SetSDIOReadWaitMode
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:648    .text.SDIO_SetSDIOReadWaitMode:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:653    .text.SDIO_SetSDIOOperation:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:658    .text.SDIO_SetSDIOOperation:00000000 SDIO_SetSDIOOperation
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:673    .text.SDIO_SetSDIOOperation:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:678    .text.SDIO_SendSDIOSuspendCmd:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:683    .text.SDIO_SendSDIOSuspendCmd:00000000 SDIO_SendSDIOSuspendCmd
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:698    .text.SDIO_SendSDIOSuspendCmd:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:703    .text.SDIO_CommandCompletionCmd:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:708    .text.SDIO_CommandCompletionCmd:00000000 SDIO_CommandCompletionCmd
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:723    .text.SDIO_CommandCompletionCmd:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:728    .text.SDIO_CEATAITCmd:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:733    .text.SDIO_CEATAITCmd:00000000 SDIO_CEATAITCmd
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:751    .text.SDIO_CEATAITCmd:00000010 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:756    .text.SDIO_SendCEATACmd:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:761    .text.SDIO_SendCEATACmd:00000000 SDIO_SendCEATACmd
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:776    .text.SDIO_SendCEATACmd:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:781    .text.SDIO_DMACmd:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:786    .text.SDIO_DMACmd:00000000 SDIO_DMACmd
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:801    .text.SDIO_DMACmd:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:806    .text.SDIO_ITConfig:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:811    .text.SDIO_ITConfig:00000000 SDIO_ITConfig
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:839    .text.SDIO_ITConfig:00000014 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:844    .text.SDIO_GetFlagStatus:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:849    .text.SDIO_GetFlagStatus:00000000 SDIO_GetFlagStatus
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:871    .text.SDIO_GetFlagStatus:00000010 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:876    .text.SDIO_ClearFlag:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:881    .text.SDIO_ClearFlag:00000000 SDIO_ClearFlag
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:896    .text.SDIO_ClearFlag:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:901    .text.SDIO_GetITStatus:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:906    .text.SDIO_GetITStatus:00000000 SDIO_GetITStatus
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:928    .text.SDIO_GetITStatus:00000010 $d
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:933    .text.SDIO_ClearITPendingBit:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:938    .text.SDIO_ClearITPendingBit:00000000 SDIO_ClearITPendingBit
+C:\Users\Student\AppData\Local\Temp\ccmcmCVe.s:953    .text.SDIO_ClearITPendingBit:00000008 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+RCC_APB2PeriphResetCmd

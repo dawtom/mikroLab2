@@ -1,0 +1,451 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 2
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"dbgu.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.debug_init_default,"ax",%progbits
+  20              		.align	2
+  21              		.global	debug_init_default
+  22              		.thumb
+  23              		.thumb_func
+  25              	debug_init_default:
+  26              	.LFB110:
+  27              		.file 1 "drivers/dbgu.c"
+   1:drivers/dbgu.c **** #include "stm32f4xx.h"
+   2:drivers/dbgu.c **** #include "dbgu.h"
+   3:drivers/dbgu.c **** 
+   4:drivers/dbgu.c **** 
+   5:drivers/dbgu.c **** void debug_init_default(void)
+   6:drivers/dbgu.c **** {
+  28              		.loc 1 6 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 32
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 24
+  35              		.cfi_offset 4, -24
+  36              		.cfi_offset 5, -20
+  37              		.cfi_offset 6, -16
+  38              		.cfi_offset 7, -12
+  39              		.cfi_offset 8, -8
+  40              		.cfi_offset 14, -4
+   7:drivers/dbgu.c **** 	// Enable peripheral clocks
+   8:drivers/dbgu.c **** 	//
+   9:drivers/dbgu.c **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+  41              		.loc 1 9 0
+  42 0004 1020     		movs	r0, #16
+   6:drivers/dbgu.c **** 	// Enable peripheral clocks
+  43              		.loc 1 6 0
+  44 0006 88B0     		sub	sp, sp, #32
+  45              	.LCFI1:
+  46              		.cfi_def_cfa_offset 56
+  47              		.loc 1 9 0
+  48 0008 0121     		movs	r1, #1
+  49 000a FFF7FEFF 		bl	RCC_APB2PeriphClockCmd
+  50              	.LVL0:
+  10:drivers/dbgu.c **** 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
+  11:drivers/dbgu.c **** 	
+  12:drivers/dbgu.c **** 	// Initialize Serial Port
+  13:drivers/dbgu.c **** 	//
+  14:drivers/dbgu.c **** 	GPIO_Init(GPIOA, &(GPIO_InitTypeDef) {
+  51              		.loc 1 14 0
+  52 000e 204C     		ldr	r4, .L3
+  15:drivers/dbgu.c **** 		.GPIO_Pin   = GPIO_Pin_9,
+  16:drivers/dbgu.c **** 		.GPIO_Speed = GPIO_Speed_50MHz,
+  17:drivers/dbgu.c **** 		.GPIO_Mode  = GPIO_Mode_AF,
+  18:drivers/dbgu.c **** 		.GPIO_OType = GPIO_OType_PP
+  19:drivers/dbgu.c **** 	});
+  20:drivers/dbgu.c **** 	
+  21:drivers/dbgu.c **** 	GPIO_Init(GPIOA, &(GPIO_InitTypeDef) {
+  22:drivers/dbgu.c **** 		.GPIO_Pin = GPIO_Pin_10,
+  23:drivers/dbgu.c **** 		.GPIO_Mode = GPIO_Mode_AF,
+  24:drivers/dbgu.c **** 		.GPIO_PuPd = GPIO_PuPd_UP
+  25:drivers/dbgu.c **** 	});
+  26:drivers/dbgu.c **** 	
+  27:drivers/dbgu.c **** 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_USART1);
+  28:drivers/dbgu.c **** 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_USART1);
+  29:drivers/dbgu.c **** 	
+  30:drivers/dbgu.c **** 	USART_OverSampling8Cmd(USART1,DISABLE);
+  53              		.loc 1 30 0
+  54 0010 204D     		ldr	r5, .L3+4
+  10:drivers/dbgu.c **** 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
+  55              		.loc 1 10 0
+  56 0012 0120     		movs	r0, #1
+  57 0014 0146     		mov	r1, r0
+  58 0016 FFF7FEFF 		bl	RCC_AHB1PeriphClockCmd
+  59              	.LVL1:
+  14:drivers/dbgu.c **** 		.GPIO_Pin   = GPIO_Pin_9,
+  60              		.loc 1 14 0
+  61 001a 0026     		movs	r6, #0
+  62 001c 0227     		movs	r7, #2
+  63 001e 2046     		mov	r0, r4
+  64 0020 4FF40073 		mov	r3, #512
+  65 0024 6946     		mov	r1, sp
+  66 0026 8DE84800 		stmia	sp, {r3, r6}
+  21:drivers/dbgu.c **** 		.GPIO_Pin = GPIO_Pin_10,
+  67              		.loc 1 21 0
+  68 002a 4FF00108 		mov	r8, #1
+  14:drivers/dbgu.c **** 		.GPIO_Pin   = GPIO_Pin_9,
+  69              		.loc 1 14 0
+  70 002e 8DF80470 		strb	r7, [sp, #4]
+  71 0032 8DF80570 		strb	r7, [sp, #5]
+  72 0036 FFF7FEFF 		bl	GPIO_Init
+  73              	.LVL2:
+  21:drivers/dbgu.c **** 		.GPIO_Pin = GPIO_Pin_10,
+  74              		.loc 1 21 0
+  75 003a 4FF48063 		mov	r3, #1024
+  76 003e 2046     		mov	r0, r4
+  77 0040 02A9     		add	r1, sp, #8
+  78 0042 0293     		str	r3, [sp, #8]
+  79 0044 0396     		str	r6, [sp, #12]
+  80 0046 8DF80C70 		strb	r7, [sp, #12]
+  81 004a 8DF80F80 		strb	r8, [sp, #15]
+  82 004e FFF7FEFF 		bl	GPIO_Init
+  83              	.LVL3:
+  27:drivers/dbgu.c **** 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_USART1);
+  84              		.loc 1 27 0
+  85 0052 2046     		mov	r0, r4
+  86 0054 0921     		movs	r1, #9
+  87 0056 0722     		movs	r2, #7
+  88 0058 FFF7FEFF 		bl	GPIO_PinAFConfig
+  89              	.LVL4:
+  28:drivers/dbgu.c **** 	
+  90              		.loc 1 28 0
+  91 005c 2046     		mov	r0, r4
+  92 005e 0722     		movs	r2, #7
+  93 0060 0A21     		movs	r1, #10
+  94 0062 FFF7FEFF 		bl	GPIO_PinAFConfig
+  95              	.LVL5:
+  96              		.loc 1 30 0
+  97 0066 3146     		mov	r1, r6
+  98 0068 2846     		mov	r0, r5
+  99 006a FFF7FEFF 		bl	USART_OverSampling8Cmd
+ 100              	.LVL6:
+  31:drivers/dbgu.c **** 	
+  32:drivers/dbgu.c **** 	USART_Init(USART1, &(USART_InitTypeDef) {
+ 101              		.loc 1 32 0
+ 102 006e 0A4B     		ldr	r3, .L3+8
+ 103 0070 0FCB     		ldmia	r3, {r0, r1, r2, r3}
+ 104 0072 04AC     		add	r4, sp, #16
+ 105 0074 84E80F00 		stmia	r4, {r0, r1, r2, r3}
+ 106 0078 2146     		mov	r1, r4
+ 107 007a 2846     		mov	r0, r5
+ 108 007c FFF7FEFF 		bl	USART_Init
+ 109              	.LVL7:
+  33:drivers/dbgu.c **** 		.USART_BaudRate = 115200,
+  34:drivers/dbgu.c **** 		.USART_WordLength = USART_WordLength_8b,
+  35:drivers/dbgu.c **** 		.USART_StopBits = USART_StopBits_1,
+  36:drivers/dbgu.c **** 		.USART_Parity = USART_Parity_No ,
+  37:drivers/dbgu.c **** 		.USART_HardwareFlowControl = USART_HardwareFlowControl_None,
+  38:drivers/dbgu.c **** 		.USART_Mode = USART_Mode_Rx | USART_Mode_Tx
+  39:drivers/dbgu.c **** 	});
+  40:drivers/dbgu.c **** 	
+  41:drivers/dbgu.c **** 	
+  42:drivers/dbgu.c **** 	USART_Cmd(USART1, ENABLE);
+ 110              		.loc 1 42 0
+ 111 0080 2846     		mov	r0, r5
+ 112 0082 4146     		mov	r1, r8
+ 113 0084 FFF7FEFF 		bl	USART_Cmd
+ 114              	.LVL8:
+  43:drivers/dbgu.c **** }
+ 115              		.loc 1 43 0
+ 116 0088 08B0     		add	sp, sp, #32
+ 117              	.LCFI2:
+ 118              		.cfi_def_cfa_offset 24
+ 119              		@ sp needed
+ 120 008a BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 121              	.L4:
+ 122 008e 00BF     		.align	2
+ 123              	.L3:
+ 124 0090 00000240 		.word	1073872896
+ 125 0094 00100140 		.word	1073811456
+ 126 0098 00000000 		.word	.LANCHOR0
+ 127              		.cfi_endproc
+ 128              	.LFE110:
+ 130              		.section	.text.debug_test,"ax",%progbits
+ 131              		.align	2
+ 132              		.global	debug_test
+ 133              		.thumb
+ 134              		.thumb_func
+ 136              	debug_test:
+ 137              	.LFB111:
+  44:drivers/dbgu.c **** 
+  45:drivers/dbgu.c **** int debug_test(void)
+  46:drivers/dbgu.c **** {
+ 138              		.loc 1 46 0
+ 139              		.cfi_startproc
+ 140              		@ args = 0, pretend = 0, frame = 0
+ 141              		@ frame_needed = 0, uses_anonymous_args = 0
+ 142 0000 08B5     		push	{r3, lr}
+ 143              	.LCFI3:
+ 144              		.cfi_def_cfa_offset 8
+ 145              		.cfi_offset 3, -8
+ 146              		.cfi_offset 14, -4
+  47:drivers/dbgu.c **** 	return ( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET ) ? 0 : 1;
+ 147              		.loc 1 47 0
+ 148 0002 2021     		movs	r1, #32
+ 149 0004 0348     		ldr	r0, .L7
+ 150 0006 FFF7FEFF 		bl	USART_GetFlagStatus
+ 151              	.LVL9:
+  48:drivers/dbgu.c **** }
+ 152              		.loc 1 48 0
+ 153 000a 0030     		adds	r0, r0, #0
+ 154 000c 18BF     		it	ne
+ 155 000e 0120     		movne	r0, #1
+ 156 0010 08BD     		pop	{r3, pc}
+ 157              	.L8:
+ 158 0012 00BF     		.align	2
+ 159              	.L7:
+ 160 0014 00100140 		.word	1073811456
+ 161              		.cfi_endproc
+ 162              	.LFE111:
+ 164              		.section	.text.debug_chr,"ax",%progbits
+ 165              		.align	2
+ 166              		.global	debug_chr
+ 167              		.thumb
+ 168              		.thumb_func
+ 170              	debug_chr:
+ 171              	.LFB112:
+  49:drivers/dbgu.c **** 
+  50:drivers/dbgu.c **** 
+  51:drivers/dbgu.c **** //send chr via UART (platform dependent)
+  52:drivers/dbgu.c **** void debug_chr(char chr)
+  53:drivers/dbgu.c **** {
+ 172              		.loc 1 53 0
+ 173              		.cfi_startproc
+ 174              		@ args = 0, pretend = 0, frame = 0
+ 175              		@ frame_needed = 0, uses_anonymous_args = 0
+ 176              	.LVL10:
+ 177 0000 10B5     		push	{r4, lr}
+ 178              	.LCFI4:
+ 179              		.cfi_def_cfa_offset 8
+ 180              		.cfi_offset 4, -8
+ 181              		.cfi_offset 14, -4
+ 182 0002 0446     		mov	r4, r0
+ 183              	.LVL11:
+ 184              	.L10:
+  54:drivers/dbgu.c **** 	while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET) { ; }
+ 185              		.loc 1 54 0 discriminator 1
+ 186 0004 0548     		ldr	r0, .L15
+ 187 0006 8021     		movs	r1, #128
+ 188 0008 FFF7FEFF 		bl	USART_GetFlagStatus
+ 189              	.LVL12:
+ 190 000c 0028     		cmp	r0, #0
+ 191 000e F9D0     		beq	.L10
+  55:drivers/dbgu.c **** 	USART_SendData(USART1, (uint16_t)chr);
+ 192              		.loc 1 55 0
+ 193 0010 2146     		mov	r1, r4
+ 194 0012 0248     		ldr	r0, .L15
+  56:drivers/dbgu.c **** }
+ 195              		.loc 1 56 0
+ 196 0014 BDE81040 		pop	{r4, lr}
+ 197              	.LCFI5:
+ 198              		.cfi_restore 14
+ 199              		.cfi_restore 4
+ 200              		.cfi_def_cfa_offset 0
+  55:drivers/dbgu.c **** 	USART_SendData(USART1, (uint16_t)chr);
+ 201              		.loc 1 55 0
+ 202 0018 FFF7FEBF 		b	USART_SendData
+ 203              	.LVL13:
+ 204              	.L16:
+ 205              		.align	2
+ 206              	.L15:
+ 207 001c 00100140 		.word	1073811456
+ 208              		.cfi_endproc
+ 209              	.LFE112:
+ 211              		.section	.text.putChar,"ax",%progbits
+ 212              		.align	2
+ 213              		.global	putChar
+ 214              		.thumb
+ 215              		.thumb_func
+ 217              	putChar:
+ 218              	.LFB113:
+  57:drivers/dbgu.c **** 
+  58:drivers/dbgu.c **** int putChar(int ch)
+  59:drivers/dbgu.c **** {
+ 219              		.loc 1 59 0
+ 220              		.cfi_startproc
+ 221              		@ args = 0, pretend = 0, frame = 0
+ 222              		@ frame_needed = 0, uses_anonymous_args = 0
+ 223              	.LVL14:
+ 224 0000 10B5     		push	{r4, lr}
+ 225              	.LCFI6:
+ 226              		.cfi_def_cfa_offset 8
+ 227              		.cfi_offset 4, -8
+ 228              		.cfi_offset 14, -4
+ 229              		.loc 1 59 0
+ 230 0002 0446     		mov	r4, r0
+  60:drivers/dbgu.c **** 	debug_chr(ch);
+ 231              		.loc 1 60 0
+ 232 0004 C0B2     		uxtb	r0, r0
+ 233              	.LVL15:
+ 234 0006 FFF7FEFF 		bl	debug_chr
+ 235              	.LVL16:
+  61:drivers/dbgu.c **** 	return ch;
+  62:drivers/dbgu.c **** }
+ 236              		.loc 1 62 0
+ 237 000a 2046     		mov	r0, r4
+ 238 000c 10BD     		pop	{r4, pc}
+ 239              		.cfi_endproc
+ 240              	.LFE113:
+ 242 000e 00BF     		.section	.text.debug_inkey,"ax",%progbits
+ 243              		.align	2
+ 244              		.global	debug_inkey
+ 245              		.thumb
+ 246              		.thumb_func
+ 248              	debug_inkey:
+ 249              	.LFB114:
+  63:drivers/dbgu.c **** 
+  64:drivers/dbgu.c **** 
+  65:drivers/dbgu.c **** 
+  66:drivers/dbgu.c **** //returns ascii value of last char received
+  67:drivers/dbgu.c **** //returns 0 if no char was received since last debug_inkey call
+  68:drivers/dbgu.c **** //(platform dependent)
+  69:drivers/dbgu.c **** char debug_inkey(void)
+  70:drivers/dbgu.c **** {
+ 250              		.loc 1 70 0
+ 251              		.cfi_startproc
+ 252              		@ args = 0, pretend = 0, frame = 0
+ 253              		@ frame_needed = 0, uses_anonymous_args = 0
+ 254 0000 08B5     		push	{r3, lr}
+ 255              	.LCFI7:
+ 256              		.cfi_def_cfa_offset 8
+ 257              		.cfi_offset 3, -8
+ 258              		.cfi_offset 14, -4
+  71:drivers/dbgu.c **** 	if(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET)
+ 259              		.loc 1 71 0
+ 260 0002 0548     		ldr	r0, .L23
+ 261 0004 2021     		movs	r1, #32
+ 262 0006 FFF7FEFF 		bl	USART_GetFlagStatus
+ 263              	.LVL17:
+ 264 000a 18B1     		cbz	r0, .L20
+  72:drivers/dbgu.c **** 		return(0);
+  73:drivers/dbgu.c **** 	else
+  74:drivers/dbgu.c **** 		return (unsigned char)USART_ReceiveData(USART1);
+ 265              		.loc 1 74 0
+ 266 000c 0248     		ldr	r0, .L23
+ 267 000e FFF7FEFF 		bl	USART_ReceiveData
+ 268              	.LVL18:
+ 269 0012 C0B2     		uxtb	r0, r0
+ 270              	.L20:
+  75:drivers/dbgu.c **** }
+ 271              		.loc 1 75 0
+ 272 0014 08BD     		pop	{r3, pc}
+ 273              	.L24:
+ 274 0016 00BF     		.align	2
+ 275              	.L23:
+ 276 0018 00100140 		.word	1073811456
+ 277              		.cfi_endproc
+ 278              	.LFE114:
+ 280              		.section	.text.debug_waitkey,"ax",%progbits
+ 281              		.align	2
+ 282              		.global	debug_waitkey
+ 283              		.thumb
+ 284              		.thumb_func
+ 286              	debug_waitkey:
+ 287              	.LFB115:
+  76:drivers/dbgu.c **** 
+  77:drivers/dbgu.c **** //halts program/task execution until a char is received
+  78:drivers/dbgu.c **** //(platform dependent)
+  79:drivers/dbgu.c **** char debug_waitkey(void)
+  80:drivers/dbgu.c **** {
+ 288              		.loc 1 80 0
+ 289              		.cfi_startproc
+ 290              		@ args = 0, pretend = 0, frame = 0
+ 291              		@ frame_needed = 0, uses_anonymous_args = 0
+ 292 0000 08B5     		push	{r3, lr}
+ 293              	.LCFI8:
+ 294              		.cfi_def_cfa_offset 8
+ 295              		.cfi_offset 3, -8
+ 296              		.cfi_offset 14, -4
+ 297              	.L26:
+  81:drivers/dbgu.c **** 	while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET) { ; }
+ 298              		.loc 1 81 0 discriminator 1
+ 299 0002 0548     		ldr	r0, .L30
+ 300 0004 2021     		movs	r1, #32
+ 301 0006 FFF7FEFF 		bl	USART_GetFlagStatus
+ 302              	.LVL19:
+ 303 000a 0028     		cmp	r0, #0
+ 304 000c F9D0     		beq	.L26
+  82:drivers/dbgu.c **** 	return (unsigned char)USART_ReceiveData(USART1);
+ 305              		.loc 1 82 0
+ 306 000e 0248     		ldr	r0, .L30
+ 307 0010 FFF7FEFF 		bl	USART_ReceiveData
+ 308              	.LVL20:
+  83:drivers/dbgu.c **** }
+ 309              		.loc 1 83 0
+ 310 0014 C0B2     		uxtb	r0, r0
+ 311 0016 08BD     		pop	{r3, pc}
+ 312              	.L31:
+ 313              		.align	2
+ 314              	.L30:
+ 315 0018 00100140 		.word	1073811456
+ 316              		.cfi_endproc
+ 317              	.LFE115:
+ 319              		.section	.rodata
+ 320              		.align	2
+ 321              		.set	.LANCHOR0,. + 0
+ 322              	.LC0:
+ 323 0000 00C20100 		.word	115200
+ 324 0004 0000     		.short	0
+ 325 0006 0000     		.short	0
+ 326 0008 0000     		.short	0
+ 327 000a 0C00     		.short	12
+ 328 000c 0000     		.short	0
+ 329 000e 0000     		.space	2
+ 330              		.text
+ 331              	.Letext0:
+ 332              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\4.9 2014q4\\arm-none-eabi\\include\\mach
+ 333              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\4.9 2014q4\\arm-none-eabi\\include\\stdi
+ 334              		.file 4 "libs/Device/STM32F4xx/Include/stm32f4xx.h"
+ 335              		.file 5 "libs/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_gpio.h"
+ 336              		.file 6 "libs/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_usart.h"
+ 337              		.file 7 "libs/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h"
+ 338              		.file 8 "libs/CMSIS/Include/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 dbgu.c
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:20     .text.debug_init_default:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:25     .text.debug_init_default:00000000 debug_init_default
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:124    .text.debug_init_default:00000090 $d
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:131    .text.debug_test:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:136    .text.debug_test:00000000 debug_test
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:160    .text.debug_test:00000014 $d
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:165    .text.debug_chr:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:170    .text.debug_chr:00000000 debug_chr
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:207    .text.debug_chr:0000001c $d
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:212    .text.putChar:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:217    .text.putChar:00000000 putChar
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:243    .text.debug_inkey:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:248    .text.debug_inkey:00000000 debug_inkey
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:276    .text.debug_inkey:00000018 $d
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:281    .text.debug_waitkey:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:286    .text.debug_waitkey:00000000 debug_waitkey
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:315    .text.debug_waitkey:00000018 $d
+C:\Users\Student\AppData\Local\Temp\ccnUgO7C.s:320    .rodata:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+RCC_APB2PeriphClockCmd
+RCC_AHB1PeriphClockCmd
+GPIO_Init
+GPIO_PinAFConfig
+USART_OverSampling8Cmd
+USART_Init
+USART_Cmd
+USART_GetFlagStatus
+USART_SendData
+USART_ReceiveData

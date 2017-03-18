@@ -1,0 +1,252 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 2
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"main.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.init,"ax",%progbits
+  20              		.align	2
+  21              		.global	init
+  22              		.thumb
+  23              		.thumb_func
+  25              	init:
+  26              	.LFB110:
+  27              		.file 1 "main.c"
+   1:main.c        **** #include "common.h"
+   2:main.c        **** #include <math.h>
+   3:main.c        **** #include <stdio.h>
+   4:main.c        **** #include <stdlib.h>
+   5:main.c        **** 
+   6:main.c        **** 
+   7:main.c        **** void init(void)
+   8:main.c        **** {
+  28              		.loc 1 8 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 16
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+   9:main.c        **** 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
+  32              		.loc 1 9 0
+  33 0000 104B     		ldr	r3, .L3
+  34 0002 1A6B     		ldr	r2, [r3, #48]
+   8:main.c        **** 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
+  35              		.loc 1 8 0
+  36 0004 00B5     		push	{lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 4
+  39              		.cfi_offset 14, -4
+  40              		.loc 1 9 0
+  41 0006 42F00802 		orr	r2, r2, #8
+  42 000a 1A63     		str	r2, [r3, #48]
+  10:main.c        **** 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
+  43              		.loc 1 10 0
+  44 000c 1A6B     		ldr	r2, [r3, #48]
+  45 000e 42F04002 		orr	r2, r2, #64
+   8:main.c        **** 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
+  46              		.loc 1 8 0
+  47 0012 85B0     		sub	sp, sp, #20
+  48              	.LCFI1:
+  49              		.cfi_def_cfa_offset 24
+  50              		.loc 1 10 0
+  51 0014 1A63     		str	r2, [r3, #48]
+  11:main.c        **** 	
+  12:main.c        ****     debug_init_default();
+  52              		.loc 1 12 0
+  53 0016 FFF7FEFF 		bl	debug_init_default
+  54              	.LVL0:
+  13:main.c        ****     xprintf("\n*** reset ***\n" ANSI_FG_LTRED "STM32F4-DISCO" ANSI_NORMAL " Empty project\n" );
+  55              		.loc 1 13 0
+  56 001a 0B48     		ldr	r0, .L3+4
+  57 001c FFF7FEFF 		bl	xprintf
+  58              	.LVL1:
+  14:main.c        ****     printf("This is normal printf test!\r\n");
+  59              		.loc 1 14 0
+  60 0020 0A48     		ldr	r0, .L3+8
+  61 0022 FFF7FEFF 		bl	puts
+  62              	.LVL2:
+  15:main.c        **** 	
+  16:main.c        **** 	RCC_ClocksTypeDef RCC_ClocksStatus;
+  17:main.c        **** 	RCC_GetClocksFreq(&RCC_ClocksStatus);
+  63              		.loc 1 17 0
+  64 0026 6846     		mov	r0, sp
+  65 0028 FFF7FEFF 		bl	RCC_GetClocksFreq
+  66              	.LVL3:
+  18:main.c        **** 	xprintf("Clock info: F_APB1 = %d Hz, F_APB2 = %d Hz\n",(int)RCC_ClocksStatus.PCLK1_Frequency,(int)
+  67              		.loc 1 18 0
+  68 002c 0299     		ldr	r1, [sp, #8]
+  69 002e 039A     		ldr	r2, [sp, #12]
+  70 0030 0748     		ldr	r0, .L3+12
+  71 0032 FFF7FEFF 		bl	xprintf
+  72              	.LVL4:
+  19:main.c        **** 	
+  20:main.c        **** 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+  73              		.loc 1 20 0
+  74 0036 4FF44070 		mov	r0, #768
+  75 003a FFF7FEFF 		bl	NVIC_PriorityGroupConfig
+  76              	.LVL5:
+  21:main.c        **** }
+  77              		.loc 1 21 0
+  78 003e 05B0     		add	sp, sp, #20
+  79              	.LCFI2:
+  80              		.cfi_def_cfa_offset 4
+  81              		@ sp needed
+  82 0040 5DF804FB 		ldr	pc, [sp], #4
+  83              	.L4:
+  84              		.align	2
+  85              	.L3:
+  86 0044 00380240 		.word	1073887232
+  87 0048 00000000 		.word	.LC0
+  88 004c 38000000 		.word	.LC1
+  89 0050 58000000 		.word	.LC2
+  90              		.cfi_endproc
+  91              	.LFE110:
+  93              		.section	.text.startup.main,"ax",%progbits
+  94              		.align	2
+  95              		.global	main
+  96              		.thumb
+  97              		.thumb_func
+  99              	main:
+ 100              	.LFB111:
+  22:main.c        **** 
+  23:main.c        **** 
+  24:main.c        **** int main(void)
+  25:main.c        **** {
+ 101              		.loc 1 25 0
+ 102              		.cfi_startproc
+ 103              		@ args = 0, pretend = 0, frame = 0
+ 104              		@ frame_needed = 0, uses_anonymous_args = 0
+ 105 0000 08B5     		push	{r3, lr}
+ 106              	.LCFI3:
+ 107              		.cfi_def_cfa_offset 8
+ 108              		.cfi_offset 3, -8
+ 109              		.cfi_offset 14, -4
+  26:main.c        **** 	//init();
+  27:main.c        **** 	leds_init();
+ 110              		.loc 1 27 0
+ 111 0002 FFF7FEFF 		bl	leds_init
+ 112              	.LVL6:
+ 113              	.L7:
+ 114              	.LBB2:
+  28:main.c        **** 	
+  29:main.c        **** 	while(1)
+  30:main.c        **** 	{
+  31:main.c        **** 		char key = debug_inkey();
+ 115              		.loc 1 31 0
+ 116 0006 FFF7FEFF 		bl	debug_inkey
+ 117              	.LVL7:
+  32:main.c        **** 		
+  33:main.c        **** 		if(key)
+ 118              		.loc 1 33 0
+ 119 000a 0028     		cmp	r0, #0
+ 120 000c FBD0     		beq	.L7
+  34:main.c        **** 		{
+  35:main.c        **** 			switch(key)
+ 121              		.loc 1 35 0
+ 122 000e 6128     		cmp	r0, #97
+  36:main.c        **** 			{
+  37:main.c        **** 				case 'a':
+  38:main.c        **** 					xprintf("Wyslano znak \"a\"\n");
+  39:main.c        **** 					break;
+  40:main.c        **** 				default:
+  41:main.c        **** 					xprintf("nie rozpoznane polecenie\n");
+ 123              		.loc 1 41 0
+ 124 0010 0248     		ldr	r0, .L16
+ 125              	.LVL8:
+  38:main.c        **** 					break;
+ 126              		.loc 1 38 0
+ 127 0012 08BF     		it	eq
+ 128 0014 0248     		ldreq	r0, .L16+4
+ 129              		.loc 1 41 0
+ 130 0016 FFF7FEFF 		bl	xprintf
+ 131              	.LVL9:
+  42:main.c        **** 					break;
+ 132              		.loc 1 42 0
+ 133 001a F4E7     		b	.L7
+ 134              	.L17:
+ 135              		.align	2
+ 136              	.L16:
+ 137 001c 98000000 		.word	.LC4
+ 138 0020 84000000 		.word	.LC3
+ 139              	.LBE2:
+ 140              		.cfi_endproc
+ 141              	.LFE111:
+ 143              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 144              		.align	2
+ 145              	.LC0:
+ 146 0000 0A2A2A2A 		.ascii	"\012*** reset ***\012\033[1;31mSTM32F4-DISCO\033[0m"
+ 146      20726573 
+ 146      6574202A 
+ 146      2A2A0A1B 
+ 146      5B313B33 
+ 147 0027 20456D70 		.ascii	" Empty project\012\000"
+ 147      74792070 
+ 147      726F6A65 
+ 147      63740A00 
+ 148 0037 00       		.space	1
+ 149              	.LC1:
+ 150 0038 54686973 		.ascii	"This is normal printf test!\015\000"
+ 150      20697320 
+ 150      6E6F726D 
+ 150      616C2070 
+ 150      72696E74 
+ 151 0055 000000   		.space	3
+ 152              	.LC2:
+ 153 0058 436C6F63 		.ascii	"Clock info: F_APB1 = %d Hz, F_APB2 = %d Hz\012\000"
+ 153      6B20696E 
+ 153      666F3A20 
+ 153      465F4150 
+ 153      4231203D 
+ 154              	.LC3:
+ 155 0084 5779736C 		.ascii	"Wyslano znak \"a\"\012\000"
+ 155      616E6F20 
+ 155      7A6E616B 
+ 155      20226122 
+ 155      0A00
+ 156 0096 0000     		.space	2
+ 157              	.LC4:
+ 158 0098 6E696520 		.ascii	"nie rozpoznane polecenie\012\000"
+ 158      726F7A70 
+ 158      6F7A6E61 
+ 158      6E652070 
+ 158      6F6C6563 
+ 159 00b2 0000     		.text
+ 160              	.Letext0:
+ 161              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\4.9 2014q4\\arm-none-eabi\\include\\mach
+ 162              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\4.9 2014q4\\arm-none-eabi\\include\\stdi
+ 163              		.file 4 "libs/Device/STM32F4xx/Include/stm32f4xx.h"
+ 164              		.file 5 "libs/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h"
+ 165              		.file 6 "drivers/term_io.h"
+ 166              		.file 7 "libs/STM32F4xx_StdPeriph_Driver/inc/misc.h"
+ 167              		.file 8 "libs/CMSIS/Include/core_cm4.h"
+ 168              		.file 9 "drivers/dbgu.h"
+ 169              		.file 10 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\Student\AppData\Local\Temp\ccQwtn35.s:20     .text.init:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccQwtn35.s:25     .text.init:00000000 init
+C:\Users\Student\AppData\Local\Temp\ccQwtn35.s:86     .text.init:00000044 $d
+C:\Users\Student\AppData\Local\Temp\ccQwtn35.s:94     .text.startup.main:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccQwtn35.s:99     .text.startup.main:00000000 main
+C:\Users\Student\AppData\Local\Temp\ccQwtn35.s:137    .text.startup.main:0000001c $d
+C:\Users\Student\AppData\Local\Temp\ccQwtn35.s:144    .rodata.str1.4:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+debug_init_default
+xprintf
+puts
+RCC_GetClocksFreq
+NVIC_PriorityGroupConfig
+leds_init
+debug_inkey

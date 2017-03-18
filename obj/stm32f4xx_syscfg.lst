@@ -1,0 +1,488 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 2
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"stm32f4xx_syscfg.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.SYSCFG_DeInit,"ax",%progbits
+  20              		.align	2
+  21              		.global	SYSCFG_DeInit
+  22              		.thumb
+  23              		.thumb_func
+  25              	SYSCFG_DeInit:
+  26              	.LFB110:
+  27              		.file 1 "libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c"
+   1:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /**
+   2:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   ******************************************************************************
+   3:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @file    stm32f4xx_syscfg.c
+   4:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @author  MCD Application Team
+   5:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @version V1.3.0
+   6:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @date    08-November-2013
+   7:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @brief   This file provides firmware functions to manage the SYSCFG peripheral.
+   8:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *
+   9:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****  @verbatim
+  10:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****     
+  11:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****  ===============================================================================
+  12:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****                      ##### How to use this driver #####
+  13:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****  ===============================================================================
+  14:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****     [..] This driver provides functions for:
+  15:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****             
+  16:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****        (#) Remapping the memory accessible in the code area using SYSCFG_MemoryRemapConfig()
+  17:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****             
+  18:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****        (#) Swapping the internal flash Bank1 and Bank2 this features is only visible for 
+  19:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****            STM32F42xxx/43xxx devices Devices. 
+  20:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****                 
+  21:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****        (#) Manage the EXTI lines connection to the GPIOs using SYSCFG_EXTILineConfig()
+  22:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****               
+  23:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****        (#) Select the ETHERNET media interface (RMII/RII) using SYSCFG_ETH_MediaInterfaceConfig()
+  24:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   
+  25:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****        -@- SYSCFG APB clock must be enabled to get write access to SYSCFG registers,
+  26:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****            using RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+  27:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****                    
+  28:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****  @endverbatim      
+  29:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   ******************************************************************************
+  30:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @attention
+  31:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *
+  32:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  33:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *
+  34:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  35:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * You may not use this file except in compliance with the License.
+  36:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * You may obtain a copy of the License at:
+  37:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *
+  38:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *        http://www.st.com/software_license_agreement_liberty_v2
+  39:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *
+  40:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * Unless required by applicable law or agreed to in writing, software 
+  41:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * distributed under the License is distributed on an "AS IS" BASIS, 
+  42:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  43:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * See the License for the specific language governing permissions and
+  44:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * limitations under the License.
+  45:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *
+  46:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   ******************************************************************************
+  47:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */
+  48:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+  49:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* Includes ------------------------------------------------------------------*/
+  50:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #include "stm32f4xx_syscfg.h"
+  51:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #include "stm32f4xx_rcc.h"
+  52:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+  53:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /** @addtogroup STM32F4xx_StdPeriph_Driver
+  54:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @{
+  55:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */
+  56:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+  57:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /** @defgroup SYSCFG 
+  58:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @brief SYSCFG driver modules
+  59:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @{
+  60:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */ 
+  61:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+  62:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* Private typedef -----------------------------------------------------------*/
+  63:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* Private define ------------------------------------------------------------*/
+  64:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* ------------ RCC registers bit address in the alias region ----------- */
+  65:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #define SYSCFG_OFFSET             (SYSCFG_BASE - PERIPH_BASE)
+  66:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* ---  MEMRMP Register ---*/ 
+  67:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* Alias word address of UFB_MODE bit */ 
+  68:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #define MEMRMP_OFFSET             SYSCFG_OFFSET 
+  69:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #define UFB_MODE_BitNumber        ((uint8_t)0x8) 
+  70:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #define UFB_MODE_BB               (PERIPH_BB_BASE + (MEMRMP_OFFSET * 32) + (UFB_MODE_BitNumber * 4)
+  71:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+  72:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+  73:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* ---  PMC Register ---*/ 
+  74:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* Alias word address of MII_RMII_SEL bit */ 
+  75:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #define PMC_OFFSET                (SYSCFG_OFFSET + 0x04) 
+  76:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #define MII_RMII_SEL_BitNumber    ((uint8_t)0x17) 
+  77:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #define PMC_MII_RMII_SEL_BB       (PERIPH_BB_BASE + (PMC_OFFSET * 32) + (MII_RMII_SEL_BitNumber * 4
+  78:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+  79:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* ---  CMPCR Register ---*/ 
+  80:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* Alias word address of CMP_PD bit */ 
+  81:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #define CMPCR_OFFSET              (SYSCFG_OFFSET + 0x20) 
+  82:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #define CMP_PD_BitNumber          ((uint8_t)0x00) 
+  83:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** #define CMPCR_CMP_PD_BB           (PERIPH_BB_BASE + (CMPCR_OFFSET * 32) + (CMP_PD_BitNumber * 4)) 
+  84:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+  85:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* Private macro -------------------------------------------------------------*/
+  86:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* Private variables ---------------------------------------------------------*/
+  87:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* Private function prototypes -----------------------------------------------*/
+  88:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /* Private functions ---------------------------------------------------------*/
+  89:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+  90:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /** @defgroup SYSCFG_Private_Functions
+  91:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @{
+  92:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */ 
+  93:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+  94:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /**
+  95:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @brief  Deinitializes the Alternate Functions (remap and EXTI configuration)
+  96:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *   registers to their default reset values.
+  97:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @param  None
+  98:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @retval None
+  99:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */
+ 100:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** void SYSCFG_DeInit(void)
+ 101:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** {
+  28              		.loc 1 101 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 08B5     		push	{r3, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 3, -8
+  36              		.cfi_offset 14, -4
+ 102:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****    RCC_APB2PeriphResetCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+  37              		.loc 1 102 0
+  38 0002 4FF48040 		mov	r0, #16384
+  39 0006 0121     		movs	r1, #1
+  40 0008 FFF7FEFF 		bl	RCC_APB2PeriphResetCmd
+  41              	.LVL0:
+ 103:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****    RCC_APB2PeriphResetCmd(RCC_APB2Periph_SYSCFG, DISABLE);
+  42              		.loc 1 103 0
+  43 000c 4FF48040 		mov	r0, #16384
+  44 0010 0021     		movs	r1, #0
+ 104:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** }
+  45              		.loc 1 104 0
+  46 0012 BDE80840 		pop	{r3, lr}
+  47              	.LCFI1:
+  48              		.cfi_restore 14
+  49              		.cfi_restore 3
+  50              		.cfi_def_cfa_offset 0
+ 103:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****    RCC_APB2PeriphResetCmd(RCC_APB2Periph_SYSCFG, DISABLE);
+  51              		.loc 1 103 0
+  52 0016 FFF7FEBF 		b	RCC_APB2PeriphResetCmd
+  53              	.LVL1:
+  54              		.cfi_endproc
+  55              	.LFE110:
+  57 001a 00BF     		.section	.text.SYSCFG_MemoryRemapConfig,"ax",%progbits
+  58              		.align	2
+  59              		.global	SYSCFG_MemoryRemapConfig
+  60              		.thumb
+  61              		.thumb_func
+  63              	SYSCFG_MemoryRemapConfig:
+  64              	.LFB111:
+ 105:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 106:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /**
+ 107:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @brief  Changes the mapping of the specified pin.
+ 108:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @param  SYSCFG_Memory: selects the memory remapping.
+ 109:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *         This parameter can be one of the following values:
+ 110:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg SYSCFG_MemoryRemap_Flash:       Main Flash memory mapped at 0x00000000  
+ 111:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg SYSCFG_MemoryRemap_SystemFlash: System Flash memory mapped at 0x00000000
+ 112:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg SYSCFG_MemoryRemap_FSMC:        FSMC (Bank1 (NOR/PSRAM 1 and 2) mapped at 0x000
+ 113:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg SYSCFG_MemoryRemap_FMC:         FMC (Bank1 (NOR/PSRAM 1 and 2) mapped at 0x0000
+ 114:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg SYSCFG_MemoryRemap_SRAM:        Embedded SRAM (112kB) mapped at 0x00000000
+ 115:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg SYSCFG_MemoryRemap_SDRAM:       FMC (External SDRAM)  mapped at 0x00000000 for 
+ 116:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @retval None
+ 117:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */
+ 118:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** void SYSCFG_MemoryRemapConfig(uint8_t SYSCFG_MemoryRemap)
+ 119:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** {
+  65              		.loc 1 119 0
+  66              		.cfi_startproc
+  67              		@ args = 0, pretend = 0, frame = 0
+  68              		@ frame_needed = 0, uses_anonymous_args = 0
+  69              		@ link register save eliminated.
+  70              	.LVL2:
+ 120:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   /* Check the parameters */
+ 121:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   assert_param(IS_SYSCFG_MEMORY_REMAP_CONFING(SYSCFG_MemoryRemap));
+ 122:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 123:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   SYSCFG->MEMRMP = SYSCFG_MemoryRemap;
+  71              		.loc 1 123 0
+  72 0000 014B     		ldr	r3, .L4
+  73 0002 1860     		str	r0, [r3]
+  74 0004 7047     		bx	lr
+  75              	.L5:
+  76 0006 00BF     		.align	2
+  77              	.L4:
+  78 0008 00380140 		.word	1073821696
+  79              		.cfi_endproc
+  80              	.LFE111:
+  82              		.section	.text.SYSCFG_MemorySwappingBank,"ax",%progbits
+  83              		.align	2
+  84              		.global	SYSCFG_MemorySwappingBank
+  85              		.thumb
+  86              		.thumb_func
+  88              	SYSCFG_MemorySwappingBank:
+  89              	.LFB112:
+ 124:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** }
+ 125:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 126:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /**
+ 127:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @brief  Enables or disables the Interal FLASH Bank Swapping.
+ 128:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *   
+ 129:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @note   This function can be used only for STM32F42xxx/43xxx devices. 
+ 130:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *
+ 131:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @param  NewState: new state of Interal FLASH Bank swapping.
+ 132:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *          This parameter can be one of the following values:
+ 133:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg ENABLE: Flash Bank2 mapped at 0x08000000 (and aliased @0x00000000) 
+ 134:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *                         and Flash Bank1 mapped at 0x08100000 (and aliased at 0x00100000)   
+ 135:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg DISABLE:(the default state) Flash Bank1 mapped at 0x08000000 (and aliased @0x00
+ 136:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****                             and Flash Bank2 mapped at 0x08100000 (and aliased at 0x00100000)  
+ 137:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @retval None
+ 138:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */
+ 139:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** void SYSCFG_MemorySwappingBank(FunctionalState NewState)
+ 140:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** {
+  90              		.loc 1 140 0
+  91              		.cfi_startproc
+  92              		@ args = 0, pretend = 0, frame = 0
+  93              		@ frame_needed = 0, uses_anonymous_args = 0
+  94              		@ link register save eliminated.
+  95              	.LVL3:
+ 141:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   /* Check the parameters */
+ 142:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 143:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 144:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *(__IO uint32_t *) UFB_MODE_BB = (uint32_t)NewState;
+  96              		.loc 1 144 0
+  97 0000 014B     		ldr	r3, .L7
+  98 0002 1860     		str	r0, [r3]
+  99 0004 7047     		bx	lr
+ 100              	.L8:
+ 101 0006 00BF     		.align	2
+ 102              	.L7:
+ 103 0008 20002742 		.word	1109852192
+ 104              		.cfi_endproc
+ 105              	.LFE112:
+ 107              		.section	.text.SYSCFG_EXTILineConfig,"ax",%progbits
+ 108              		.align	2
+ 109              		.global	SYSCFG_EXTILineConfig
+ 110              		.thumb
+ 111              		.thumb_func
+ 113              	SYSCFG_EXTILineConfig:
+ 114              	.LFB113:
+ 145:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** }
+ 146:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 147:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /**
+ 148:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @brief  Selects the GPIO pin used as EXTI Line.
+ 149:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @param  EXTI_PortSourceGPIOx : selects the GPIO port to be used as source for
+ 150:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *          EXTI lines where x can be (A..K) for STM32F42xxx/43xxx devices, (A..I) 
+ 151:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *          for STM32F405xx/407xx and STM32F415xx/417xx devices or (A, B, C, D and H)
+ 152:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *          for STM32401xx devices.  
+ 153:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            
+ 154:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @param  EXTI_PinSourcex: specifies the EXTI line to be configured.
+ 155:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *           This parameter can be EXTI_PinSourcex where x can be (0..15, except
+ 156:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *           for EXTI_PortSourceGPIOI x can be (0..11) for STM32F405xx/407xx
+ 157:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *           and STM32F405xx/407xx devices and for EXTI_PortSourceGPIOK x can   
+ 158:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *           be (0..7) for STM32F42xxx/43xxx devices. 
+ 159:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *             
+ 160:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @retval None
+ 161:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */
+ 162:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** void SYSCFG_EXTILineConfig(uint8_t EXTI_PortSourceGPIOx, uint8_t EXTI_PinSourcex)
+ 163:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** {
+ 115              		.loc 1 163 0
+ 116              		.cfi_startproc
+ 117              		@ args = 0, pretend = 0, frame = 0
+ 118              		@ frame_needed = 0, uses_anonymous_args = 0
+ 119              		@ link register save eliminated.
+ 120              	.LVL4:
+ 121 0000 01F0FC03 		and	r3, r1, #252
+ 122 0004 03F18043 		add	r3, r3, #1073741824
+ 123 0008 03F59C33 		add	r3, r3, #79872
+ 164:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   uint32_t tmp = 0x00;
+ 165:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 166:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   /* Check the parameters */
+ 167:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   assert_param(IS_EXTI_PORT_SOURCE(EXTI_PortSourceGPIOx));
+ 168:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   assert_param(IS_EXTI_PIN_SOURCE(EXTI_PinSourcex));
+ 169:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 170:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   tmp = ((uint32_t)0x0F) << (0x04 * (EXTI_PinSourcex & (uint8_t)0x03));
+ 124              		.loc 1 170 0
+ 125 000c 01F00301 		and	r1, r1, #3
+ 126              	.LVL5:
+ 163:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   uint32_t tmp = 0x00;
+ 127              		.loc 1 163 0
+ 128 0010 10B4     		push	{r4}
+ 129              	.LCFI2:
+ 130              		.cfi_def_cfa_offset 4
+ 131              		.cfi_offset 4, -4
+ 132              		.loc 1 170 0
+ 133 0012 8900     		lsls	r1, r1, #2
+ 134              	.LVL6:
+ 171:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   SYSCFG->EXTICR[EXTI_PinSourcex >> 0x02] &= ~tmp;
+ 135              		.loc 1 171 0
+ 136 0014 9C68     		ldr	r4, [r3, #8]
+ 170:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   SYSCFG->EXTICR[EXTI_PinSourcex >> 0x02] &= ~tmp;
+ 137              		.loc 1 170 0
+ 138 0016 0F22     		movs	r2, #15
+ 139 0018 8A40     		lsls	r2, r2, r1
+ 140              	.LVL7:
+ 141              		.loc 1 171 0
+ 142 001a 24EA0202 		bic	r2, r4, r2
+ 143              	.LVL8:
+ 144 001e 9A60     		str	r2, [r3, #8]
+ 172:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   SYSCFG->EXTICR[EXTI_PinSourcex >> 0x02] |= (((uint32_t)EXTI_PortSourceGPIOx) << (0x04 * (EXTI_Pin
+ 145              		.loc 1 172 0
+ 146 0020 9A68     		ldr	r2, [r3, #8]
+ 173:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** }
+ 147              		.loc 1 173 0
+ 148 0022 5DF8044B 		ldr	r4, [sp], #4
+ 149              	.LCFI3:
+ 150              		.cfi_restore 4
+ 151              		.cfi_def_cfa_offset 0
+ 172:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   SYSCFG->EXTICR[EXTI_PinSourcex >> 0x02] |= (((uint32_t)EXTI_PortSourceGPIOx) << (0x04 * (EXTI_Pin
+ 152              		.loc 1 172 0
+ 153 0026 8840     		lsls	r0, r0, r1
+ 154              	.LVL9:
+ 155 0028 0243     		orrs	r2, r2, r0
+ 156 002a 9A60     		str	r2, [r3, #8]
+ 157              		.loc 1 173 0
+ 158 002c 7047     		bx	lr
+ 159              		.cfi_endproc
+ 160              	.LFE113:
+ 162 002e 00BF     		.section	.text.SYSCFG_ETH_MediaInterfaceConfig,"ax",%progbits
+ 163              		.align	2
+ 164              		.global	SYSCFG_ETH_MediaInterfaceConfig
+ 165              		.thumb
+ 166              		.thumb_func
+ 168              	SYSCFG_ETH_MediaInterfaceConfig:
+ 169              	.LFB114:
+ 174:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 175:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /**
+ 176:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @brief  Selects the ETHERNET media interface 
+ 177:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @param  SYSCFG_ETH_MediaInterface: specifies the Media Interface mode. 
+ 178:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *          This parameter can be one of the following values: 
+ 179:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg SYSCFG_ETH_MediaInterface_MII: MII mode selected
+ 180:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg SYSCFG_ETH_MediaInterface_RMII: RMII mode selected 
+ 181:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @retval None 
+ 182:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */
+ 183:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** void SYSCFG_ETH_MediaInterfaceConfig(uint32_t SYSCFG_ETH_MediaInterface) 
+ 184:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** { 
+ 170              		.loc 1 184 0
+ 171              		.cfi_startproc
+ 172              		@ args = 0, pretend = 0, frame = 0
+ 173              		@ frame_needed = 0, uses_anonymous_args = 0
+ 174              		@ link register save eliminated.
+ 175              	.LVL10:
+ 185:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   assert_param(IS_SYSCFG_ETH_MEDIA_INTERFACE(SYSCFG_ETH_MediaInterface)); 
+ 186:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   /* Configure MII_RMII selection bit */ 
+ 187:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *(__IO uint32_t *) PMC_MII_RMII_SEL_BB = SYSCFG_ETH_MediaInterface; 
+ 176              		.loc 1 187 0
+ 177 0000 014B     		ldr	r3, .L12
+ 178 0002 1860     		str	r0, [r3]
+ 179 0004 7047     		bx	lr
+ 180              	.L13:
+ 181 0006 00BF     		.align	2
+ 182              	.L12:
+ 183 0008 DC002742 		.word	1109852380
+ 184              		.cfi_endproc
+ 185              	.LFE114:
+ 187              		.section	.text.SYSCFG_CompensationCellCmd,"ax",%progbits
+ 188              		.align	2
+ 189              		.global	SYSCFG_CompensationCellCmd
+ 190              		.thumb
+ 191              		.thumb_func
+ 193              	SYSCFG_CompensationCellCmd:
+ 194              	.LFB115:
+ 188:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** }
+ 189:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 190:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /**
+ 191:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @brief  Enables or disables the I/O Compensation Cell.
+ 192:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @note   The I/O compensation cell can be used only when the device supply
+ 193:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *         voltage ranges from 2.4 to 3.6 V.  
+ 194:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @param  NewState: new state of the I/O Compensation Cell.
+ 195:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *          This parameter can be one of the following values:
+ 196:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg ENABLE: I/O compensation cell enabled  
+ 197:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *            @arg DISABLE: I/O compensation cell power-down mode  
+ 198:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @retval None
+ 199:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */
+ 200:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** void SYSCFG_CompensationCellCmd(FunctionalState NewState)
+ 201:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** {
+ 195              		.loc 1 201 0
+ 196              		.cfi_startproc
+ 197              		@ args = 0, pretend = 0, frame = 0
+ 198              		@ frame_needed = 0, uses_anonymous_args = 0
+ 199              		@ link register save eliminated.
+ 200              	.LVL11:
+ 202:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   /* Check the parameters */
+ 203:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   assert_param(IS_FUNCTIONAL_STATE(NewState));
+ 204:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 205:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   *(__IO uint32_t *) CMPCR_CMP_PD_BB = (uint32_t)NewState;
+ 201              		.loc 1 205 0
+ 202 0000 014B     		ldr	r3, .L15
+ 203 0002 1860     		str	r0, [r3]
+ 204 0004 7047     		bx	lr
+ 205              	.L16:
+ 206 0006 00BF     		.align	2
+ 207              	.L15:
+ 208 0008 00042742 		.word	1109853184
+ 209              		.cfi_endproc
+ 210              	.LFE115:
+ 212              		.section	.text.SYSCFG_GetCompensationCellStatus,"ax",%progbits
+ 213              		.align	2
+ 214              		.global	SYSCFG_GetCompensationCellStatus
+ 215              		.thumb
+ 216              		.thumb_func
+ 218              	SYSCFG_GetCompensationCellStatus:
+ 219              	.LFB116:
+ 206:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** }
+ 207:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** 
+ 208:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** /**
+ 209:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @brief  Checks whether the I/O Compensation Cell ready flag is set or not.
+ 210:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @param  None
+ 211:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   * @retval The new state of the I/O Compensation Cell ready flag (SET or RESET)
+ 212:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   */
+ 213:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** FlagStatus SYSCFG_GetCompensationCellStatus(void)
+ 214:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** {
+ 220              		.loc 1 214 0
+ 221              		.cfi_startproc
+ 222              		@ args = 0, pretend = 0, frame = 0
+ 223              		@ frame_needed = 0, uses_anonymous_args = 0
+ 224              		@ link register save eliminated.
+ 225              	.LVL12:
+ 215:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   FlagStatus bitstatus = RESET;
+ 216:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****     
+ 217:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   if ((SYSCFG->CMPCR & SYSCFG_CMPCR_READY ) != (uint32_t)RESET)
+ 226              		.loc 1 217 0
+ 227 0000 024B     		ldr	r3, .L18
+ 228 0002 186A     		ldr	r0, [r3, #32]
+ 229              	.LVL13:
+ 218:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   {
+ 219:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****     bitstatus = SET;
+ 220:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   }
+ 221:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   else
+ 222:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   {
+ 223:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****     bitstatus = RESET;
+ 224:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   }
+ 225:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c ****   return bitstatus;
+ 226:libs/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c **** }
+ 230              		.loc 1 226 0
+ 231 0004 C0F30020 		ubfx	r0, r0, #8, #1
+ 232              	.LVL14:
+ 233 0008 7047     		bx	lr
+ 234              	.L19:
+ 235 000a 00BF     		.align	2
+ 236              	.L18:
+ 237 000c 00380140 		.word	1073821696
+ 238              		.cfi_endproc
+ 239              	.LFE116:
+ 241              		.text
+ 242              	.Letext0:
+ 243              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\4.9 2014q4\\arm-none-eabi\\include\\mach
+ 244              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\4.9 2014q4\\arm-none-eabi\\include\\stdi
+ 245              		.file 4 "libs/Device/STM32F4xx/Include/stm32f4xx.h"
+ 246              		.file 5 "libs/CMSIS/Include/core_cm4.h"
+ 247              		.file 6 "libs/STM32F4xx_StdPeriph_Driver/inc/stm32f4xx_rcc.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_syscfg.c
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:20     .text.SYSCFG_DeInit:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:25     .text.SYSCFG_DeInit:00000000 SYSCFG_DeInit
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:58     .text.SYSCFG_MemoryRemapConfig:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:63     .text.SYSCFG_MemoryRemapConfig:00000000 SYSCFG_MemoryRemapConfig
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:78     .text.SYSCFG_MemoryRemapConfig:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:83     .text.SYSCFG_MemorySwappingBank:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:88     .text.SYSCFG_MemorySwappingBank:00000000 SYSCFG_MemorySwappingBank
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:103    .text.SYSCFG_MemorySwappingBank:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:108    .text.SYSCFG_EXTILineConfig:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:113    .text.SYSCFG_EXTILineConfig:00000000 SYSCFG_EXTILineConfig
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:163    .text.SYSCFG_ETH_MediaInterfaceConfig:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:168    .text.SYSCFG_ETH_MediaInterfaceConfig:00000000 SYSCFG_ETH_MediaInterfaceConfig
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:183    .text.SYSCFG_ETH_MediaInterfaceConfig:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:188    .text.SYSCFG_CompensationCellCmd:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:193    .text.SYSCFG_CompensationCellCmd:00000000 SYSCFG_CompensationCellCmd
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:208    .text.SYSCFG_CompensationCellCmd:00000008 $d
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:213    .text.SYSCFG_GetCompensationCellStatus:00000000 $t
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:218    .text.SYSCFG_GetCompensationCellStatus:00000000 SYSCFG_GetCompensationCellStatus
+C:\Users\Student\AppData\Local\Temp\ccl3cDhw.s:237    .text.SYSCFG_GetCompensationCellStatus:0000000c $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+RCC_APB2PeriphResetCmd
