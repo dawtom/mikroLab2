@@ -23,26 +23,14 @@ void leds_init(){
 }
 
 void leds_prog(){
-GPIO_SetBits(GPIO_TypeDef* GPIOx, GPIO_Pin_13 | GPIO_Pin_14);
+
+    while (1) {
+        if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)) {
+            GPIO_SetBits(GPIOG, GPIO_Pin_13 | GPIO_Pin_14);
+        } else {
+            GPIO_ResetBits(GPIOG, GPIO_Pin_13 | GPIO_Pin_14);
+        }
+    }
+    GPIO_ToggleBits(GPIOG, GPIO_Pin_13 | GPIO_Pin_14);
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
